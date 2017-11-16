@@ -15,7 +15,9 @@ const SubMenu = Menu.SubMenu;
             <aside className="ant-layout-sider" >
                 <div className="ant-layout-logo"></div>
                 <Menu mode="inline" theme="dark"
-                      defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}>
+                      defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}
+                      onClick={clickMenu}
+                      onSelect={selectMenu}>
                     <Menu.Item key="sub1" ><Link to="/index" activeStyle={{textDecoration:'none'}} ><Icon type="user"/>我的主页</Link></Menu.Item>
                     <SubMenu key="sub2" title={<span><Icon type="laptop" />基础数据管理</span>}>
                         <Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>
@@ -47,13 +49,13 @@ const SubMenu = Menu.SubMenu;
                 </div>
                 <div className="ant-layout-container">
                     <div className="ant-layout-content">
-                        <div style={{ height: window.innerHeight -238 }}>
+                        <div style={{ height: window.innerHeight -233 }}>
                             { this.props.children }
                         </div>
                     </div>
                 </div>
                 <div className="ant-layout-footer">
-                     © 由网盛数新提供技术支持
+                    网盛数新©提供技术支持
                 </div>
             </div>
         </div>
@@ -61,7 +63,16 @@ const SubMenu = Menu.SubMenu;
         )
     }
 }
-
+const clickMenu=({item,key,keyPath})=>{
+     console.log(item);
+     console.log(key);
+     console.log(keyPath);
+ }
+ const selectMenu=({ item, key })=>{
+     console.log(item);
+    console.log(key);
+    console.log(keyPath);
+ }
 const getBreadcrumbList = state => {
     return {
         breadcrumbList: state.app.breadcrumbList

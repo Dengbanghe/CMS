@@ -1,6 +1,6 @@
 const initialState = {
     menus:[],
-    breadcrumbList: [{name:'主页',path:'/home'}],
+    breadcrumbList: [{key:'主页',path:'/home'}],
 }
 
 // 通过dispatch action进入
