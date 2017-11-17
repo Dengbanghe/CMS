@@ -1,7 +1,7 @@
 import React, { Component } from 'react' // 引入React
 import { connect } from 'react-redux'
 import { Table ,Button, Modal, Form, Input  } from 'antd';
-import { fetchPostsIfNeeded } from '../actions/regicodeMgmt'
+import { getRegionData } from '../actions/regicodeMgmt'
 const columns = [{
     title: 'Name',
     dataIndex: 'name',
@@ -84,10 +84,10 @@ const data=[
 
 class RegicodeMgmt extends Component{
     render(){
-        const {data,fetchPostsIfNeeded} = this.props
+        const {data,getRegionData} = this.props
         return (
             <div>
-            <Button onClick={()=>fetchPostsIfNeeded()}/>
+            <Button onClick={()=>getRegionData()}/>
             <Table columns={columns}  dataSource={data} />
             </div>
         )
@@ -98,4 +98,4 @@ const getData = state =>{
     return {data : state.regicodeMgmt.data}
 }
 
-module.exports = connect(getData,{fetchPostsIfNeeded})(RegicodeMgmt)
+module.exports = connect(getData,{getRegionData})(RegicodeMgmt)
