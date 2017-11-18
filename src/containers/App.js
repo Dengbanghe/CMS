@@ -64,14 +64,14 @@ const SubMenu = Menu.SubMenu;
     }
 }
 const clickMenu=({item,key,keyPath})=>{
-     console.log(item);
-     console.log(key);
-     console.log(keyPath);
+     // console.log(item);
+     // console.log(key);
+     // console.log(keyPath);
  }
  const selectMenu=({ item, key })=>{
-     console.log(item);
-    console.log(key);
-    console.log(keyPath);
+    //  console.log(item);
+    // console.log(key);
+    // console.log(keyPath);
  }
 const getBreadcrumbList = state => {
     return {
