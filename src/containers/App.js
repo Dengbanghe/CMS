@@ -28,7 +28,7 @@ const SubMenu = Menu.SubMenu;
                     <SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>
                         <Menu.Item key="9">岗位管理</Menu.Item>
                         <Menu.Item key="10">菜单管理</Menu.Item>
-                        <Menu.Item key="11">用户管理</Menu.Item>
+                        <Menu.Item key="11"><Link to="/user">用户管理</Link></Menu.Item>
                     </SubMenu>
                 </Menu>
             </aside>

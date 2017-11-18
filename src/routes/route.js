@@ -30,11 +30,17 @@ export default {
             }
         },{
             path: '/region',
-            // onEnter: (_, replaceState) => replaceState(null, "/404")
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {
                     cb(null, require('../containers/regicodeMgmt'))
                 }, 'Region')
+            }
+        },{
+            path: '/user',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/user'))
+                }, 'User')
             }
         },{
             path: '/404',

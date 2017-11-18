@@ -1,11 +1,12 @@
-import fetch from  'isomorphic-fetch';
+import fetch from 'isomorphic-fetch'
 
-export const getData1 = (promise)=>{
+export const getRegionData = (promise)=>{
     return {
         type: 'GET_DATA',
-        payload: ( async()=>{
-            let res = await fetch('data.json');
+        payload:async () => {
+            let res = await fetch("data.json")
             let data = await res.json();
-            return data })()
+            return data
+        }
     }
 }
