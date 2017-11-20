@@ -5,7 +5,7 @@ const fetch=async(url,data,method='post')=>{
     for(let key in data){
         formData.append(key,data[key])
     }
-    let res,result
+    let res,result={}
     try {
         res = await isofetch(url, {method: method, body: formData})
         if (res.status === 200) {
@@ -21,7 +21,7 @@ const fetch=async(url,data,method='post')=>{
             message.error(`请求路径 ${url} 不存在 请联系管理员`)
         }
     }catch(e){
-        // message.error(e)
+        message.error(e)
         // console.error(e)
         return res
     }finally {
@@ -29,5 +29,6 @@ const fetch=async(url,data,method='post')=>{
     }
 }
 
+const remoteHost = 'http://localhost:9876'
 
-module.exports ={fetch}
+module.exports ={fetch,remoteHost}

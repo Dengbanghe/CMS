@@ -21,12 +21,12 @@ export default {
                 }, 'Home')
             }
         },{
-            path: '/foo',
+            path: '/dept',
             // onEnter: (_, replaceState) => replaceState(null, "/404")
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {
-                    cb(null, require('../containers/Foo'))
-                }, 'Foo')
+                    cb(null, require('../containers/Dept'))
+                }, 'Dept')
             }
         },{
             path: '/region',
