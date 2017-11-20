@@ -26,9 +26,10 @@ const SubMenu = Menu.SubMenu;
                         <Menu.Item key="8">贷款类型</Menu.Item>
                     </SubMenu>
                     <SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>
-                        <Menu.Item key="9">岗位管理</Menu.Item>
-                        <Menu.Item key="10">菜单管理</Menu.Item>
-                        <Menu.Item key="11"><Link to="/user">用户管理</Link></Menu.Item>
+                        <Menu.Item key="9"><Link to="/dept">岗位管理</Link></Menu.Item>
+                        <Menu.Item key="10">岗位管理</Menu.Item>
+                        <Menu.Item key="11">菜单管理</Menu.Item>
+                        <Menu.Item key="12"><Link to="/user">用户管理</Link></Menu.Item>
                     </SubMenu>
                 </Menu>
             </aside>
@@ -43,13 +44,11 @@ const SubMenu = Menu.SubMenu;
                             {/*})*/}
                         {/*}*/}
                         <Breadcrumb.Item><Link to="/index">首页</Link></Breadcrumb.Item>
-                        {/*<Breadcrumb.Item>应用列表</Breadcrumb.Item>*/}
-                        {/*<Breadcrumb.Item>某应用</Breadcrumb.Item>*/}
                     </Breadcrumb>
                 </div>
                 <div className="ant-layout-container">
                     <div className="ant-layout-content">
-                        <div style={{ height: window.innerHeight -233 }}>
+                        <div style={{ height: window.innerHeight -200 }}>
                             { this.props.children }
                         </div>
                     </div>

@@ -1,34 +1,54 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
 import { Table ,Button, Modal, Form, Input,DatePicker} from 'antd'
-import {fetch} from '../util/common'
+import { fetch ,remoteHost} from '../util/common'
 import moment from 'moment'
 const FormItem = Form.Item;
 
 const columns = [{
-    title: 'Name',
-    dataIndex: 'name',
-    width:100,
-    fixed:'left',
-    sorter:true
+    title: '帐号',
+    dataIndex: 'account',
+    width: 100,
+    fixed: 'left',
+    sorter: true
 }, {
-    title: 'Age',
-    dataIndex: 'age',
-    width:70,
-    sorter:true
+    title: '用户名',
+    dataIndex: 'nickname',
+    width: 150,
+    sorter: true
 }, {
-    title:'test1',
-    dataIndex:'test1',
-    width:150
-},{
-    title:'test2',
-    dataIndex:'test2',
-    width:300
-},{
-    title: 'Address',
-    dataIndex: 'address',
-    width:500,
-    fixed:'right'
+    title: '状态',
+    dataIndex: 'status',
+    render:(text, record, index) => {
+       switch (text){
+           case '0' :
+           return '停用'
+           break
+           case 1:
+           return '锁定'
+           break
+           default :
+           return '正常'
+       }
+    },
+    width: 75
+}, {
+    title: '部门',
+    dataIndex: 'deptName',
+    width: 150
+}, {
+    title: '岗位',
+    dataIndex: 'postName',
+    width: 150
+}, {
+    title: '创建时间',
+    dataIndex: 'addtime',
+    width: 150
+}, {
+    title: '备注',
+    dataIndex: 'remark',
+    width: 400,
+    fixed: 'right'
 }];
 
 
@@ -46,8 +66,11 @@ const CollectionCreateForm = Form.create()(
                 confirmLoading={confirmLoading}
             >
                 <Form layout="vertical">
-                    <FormItem label="姓名">
-                        {getFieldDecorator('name', {
+                    {getFieldDecorator('guid', {})(
+                        <Input type="hidden"/>
+                    )}
+                    <FormItem label="帐号">
+                        {getFieldDecorator('account', {
                             rules: [{ required: true, message: '请输入用户名' }],
                         })(
                             <Input />
@@ -88,8 +111,8 @@ class User extends Component{
 
     getData = async(param) =>{
         this.setState({loading:true})
-        let data = await fetch('http://localhost:9876/user/list',param)
-        this.setState({data:data.result,pagination:data.page ,loading:false})
+        let data = await fetch(`${remoteHost}/user/page`,param)
+        this.setState({data:data.data,pagination:data.page ,loading:false})
     }
     //分页 排序 过滤 触发回调方法
     pageChange = (pagination, filters, sorter) => {
@@ -118,19 +141,20 @@ class User extends Component{
     handleCreate = () => {
         const form = this.form;
         form.validateFields(async(err, values) => {
-            values.date = values.date.format("YYYY-MM-DD")
+            // values.date = values.date.format("YYYY-MM-DD")
             if (err) {
+                console.log('test')
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch('http://localhost:9876/user/update',values)
+            fetch(`${remoteHost}/user/update`,values)
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });
     }
 
     onRowClick = function(record,index){
-        this.setState({selectedRowKeys:record.id})
+        this.setState({selectedRowKeys:record.guid+''})
         this.selectRow([record])
     }
 
@@ -146,7 +170,7 @@ class User extends Component{
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({ selectedRowKeys})
                 this.selectRow(selectedRows)
-            },
+            }
         };
         return (
         <div>
@@ -155,8 +179,9 @@ class User extends Component{
                 <Button type="primary" style={{marginLeft:10}} onClick={this.editUser} disabled={this.state.selectedRows.length==0}>修改</Button>
             </div>
             <Table
-                rowKey="id"
+                rowKey="guid"
                 bordered={true}
+                size="small"
                 scroll={{x:1200,y:700}}
                 columns={columns}
                 rowSelection={rowSelection}
