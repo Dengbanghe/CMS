@@ -21,7 +21,8 @@
     "redux": "^3.2.1",
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
-    "webpack": "^3.8.1"
+    "webpack": "^3.8.1",
+    "list-to-tree":"^2.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

@@ -3,6 +3,7 @@ import { message } from 'antd';
 const fetch=async(url,data,method='post')=>{
     let formData = new FormData();
     for(let key in data){
+        if(data[key]==undefined)continue
         formData.append(key,data[key])
     }
     let res,result={}
@@ -10,20 +11,20 @@ const fetch=async(url,data,method='post')=>{
         res = await isofetch(url, {method: method, body: formData})
         if (res.status === 200) {
             result = await res.json();
-            if(result.result!=null){
-                if(result.result==true){
+            let success = result.success
+            if(success!=null){
+                if(success){
                     message.success(result.message)
-                }else if(result.result==false){
+                }else{
                     message.error(result.message)
                 }
             }
         }else if(res.status === 404){
-            message.error(`请求路径 ${url} 不存在 请联系管理员`)
+            message.error(`请求的资源 ${url} 不存在 请联系管理员`)
         }
     }catch(e){
         message.error(e)
-        // console.error(e)
-        return res
+        console.error(e)
     }finally {
         return result
     }

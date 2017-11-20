@@ -1,6 +1,6 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,DatePicker} from 'antd'
+import { Table ,Button, Modal, Form, Input,DatePicker,Col,Row,Radio } from 'antd'
 import { fetch ,remoteHost} from '../util/common'
 import moment from 'moment'
 const FormItem = Form.Item;
@@ -24,7 +24,7 @@ const columns = [{
            case '0' :
            return '停用'
            break
-           case 1:
+           case '1':
            return '锁定'
            break
            default :
@@ -56,6 +56,7 @@ const CollectionCreateForm = Form.create()(
     (props) => {
         const { visible, onCancel, onCreate, form ,title,confirmLoading} = props;
         const { getFieldDecorator } = form;
+        // const  layout = {labelCol: { span: 5 ,offset: 0}}
         return (
             <Modal
                 visible={visible}
@@ -64,29 +65,50 @@ const CollectionCreateForm = Form.create()(
                 onCancel={onCancel}
                 onOk={onCreate}
                 confirmLoading={confirmLoading}
+                width={600}
             >
-                <Form layout="vertical">
-                    {getFieldDecorator('guid', {})(
-                        <Input type="hidden"/>
-                    )}
-                    <FormItem label="帐号">
-                        {getFieldDecorator('account', {
-                            rules: [{ required: true, message: '请输入用户名' }],
-                        })(
-                            <Input />
+                <div >
+                    <Form layout="inline" hideRequiredMark={true}>
+                        {getFieldDecorator('guid', )(
+                            <Input type="hidden" />
                         )}
-                    </FormItem>
-                    <FormItem
-                        label="DatePicker"
-                    >
-                        {getFieldDecorator('date', {})(
-                            <DatePicker />
-                        )}
-                    </FormItem>
-                    <FormItem label="地址">
-                        {getFieldDecorator('address')(<Input type="textarea" />)}
-                    </FormItem>
-                </Form>
+                        <FormItem label="帐号" >
+                            {getFieldDecorator('account', {
+                                rules: [{ required: true, message: '请输入用户名' }],
+                            })(
+                                <Input style={{width:200,marginTop:10}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="用户名">
+                            {getFieldDecorator('nickname', {})(
+                                <Input style={{width:200,marginTop:10}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label=" 部门 ">
+                            {getFieldDecorator('deptid', {})(
+                                <Input style={{width:200,marginTop:10}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="岗位">
+                            {getFieldDecorator('postid', {})(
+                                <Input style={{width:200,marginTop:10}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="状态">
+                            {getFieldDecorator('status')(
+                                <Radio.Group   style={{width:250,marginTop:10}}>
+                                    <Radio.Button value="0">停用</Radio.Button>
+                                    <Radio.Button value="1">锁定</Radio.Button>
+                                    <Radio.Button value="2">正常</Radio.Button>
+                                </Radio.Group>
+                            )
+                        }
+                        </FormItem>
+                        <FormItem label="备注" >
+                            {getFieldDecorator('remark')(<Input type="textarea" style={{width:500,marginTop:10}}/>)}
+                        </FormItem>
+                    </Form>
+                </div>
             </Modal>
         );
     }
@@ -126,7 +148,7 @@ class User extends Component{
     }
     addUser = () => {
         this.setState({ modalVisible: true ,modalTitle:'新增用户'});
-        this.form.setFieldsValue({})
+        this.form.resetFields()
     }
     editUser = ()=>{
         this.setState({modalVisible: true ,modalTitle:'修改'})
@@ -143,11 +165,10 @@ class User extends Component{
         form.validateFields(async(err, values) => {
             // values.date = values.date.format("YYYY-MM-DD")
             if (err) {
-                console.log('test')
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/user/update`,values)
+            fetch(`${remoteHost}/user/saveUpdate`,values)
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });

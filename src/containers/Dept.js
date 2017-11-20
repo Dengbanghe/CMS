@@ -1,9 +1,52 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,Tree } from 'antd'
+import { Table ,Button, Modal, Form, Input,Tree ,Spin } from 'antd'
 const TreeNode =Tree.TreeNode
 import { fetch ,remoteHost} from '../util/common'
+import LTT from 'list-to-tree'
 const FormItem = Form.Item;
+var list = [
+    {
+        id: 1,
+        parent: 0
+    }, {
+        id: 2,
+        parent: 1
+    }, {
+        id: 3,
+        parent: 1
+    }, {
+        id: 4,
+        parent: 2
+    }, {
+        id: 5,
+        parent: 2
+    }, {
+        id: 6,
+        parent: 0
+    }, {
+        id: 7,
+        parent: 0
+    }, {
+        id: 8,
+        parent: 7
+    }, {
+        id: 9,
+        parent: 8
+    }, {
+        id: 10,
+        parent: 0
+    }
+];
+
+var ltt = new LTT(list, {
+    key_id: 'id',
+    key_parent: 'parent'
+});
+var tree = ltt.GetTree();
+
+console.log( tree );
+
 
 const columns = [{
     title:'部门编码',
@@ -34,8 +77,15 @@ class Dept extends Component{
     }
     getData = async(param) =>{
         this.setState({loading:true})
-        let data = await fetch(`${remoteHost}/dept/page`,param)
-        this.setState({data:data,loading:false})
+        let data = await fetch(`${remoteHost}/dept/tree`,param)
+        let ltt = new LTT([...data],{
+            key_id:'guid',
+            key_parent:'pid',
+            key_child :'children'
+        })
+        let treeData = ltt.GetTree()
+        console.log(JSON.stringify(treeData))
+        this.setState({data:[...treeData],loading:false})
     }
 
     onRowClick = function(record,index){
@@ -49,29 +99,25 @@ class Dept extends Component{
 
     render(){
         const {data,selectedRowKeys,loading } = this.state
-        const rowSelection ={
-            selectedRowKeys,
-            type:'radio',
-            onChange: (selectedRowKeys, selectedRows) => {
-                this.setState({ selectedRowKeys})
-                this.selectRow(selectedRows)
-            }
+        const loop = data => {
+            return data.map((item) => {
+                if (item.children) {
+                    return (
+                        <TreeNode key={item.deptcode} title={item.deptname} dataRef={item}>
+                            {loop(item.children)}
+                        </TreeNode>
+                    );
+                }
+                return <TreeNode key={item.deptcode} title={item.deptname} dataRef={item}/>;
+            });
         }
-        const loop = data => data.map((item) => {
-            if (item.children) {
-                return (
-                    <TreeNode key={item.guid} title={item.deptname} disableCheckbox={item.key === '0-0-0'}>
-                        {loop(item.children)}
-                    </TreeNode>
-                );
-            }
-            return <TreeNode key={item.guid} title={item.deptname} />;
-        });
-    return(<div>
+    return(
         <Tree>
+            {/*<TreeNode key='20' title='测试部门01'/>*/}
+
             {loop(data)}
         </Tree>
-    </div>)
+    )
     }
 }
 
