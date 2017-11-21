@@ -54,7 +54,7 @@ res:{
             {guid:3,nickname:'测试用户03',account:'测试帐号03',deptid:1,deptname:'部门01',postid:2,postname:'测试岗位',addtime:'2017-10-10 21:00:01',status:'2',remark:'备注备注备注'}
         ]}
 ```
-> 2.保存/修改 **/user/saveUpdate**
+> 2. 保存/修改 **/user/saveUpdate**
 
 有主键save 无主键update
 ```

@@ -25,6 +25,10 @@ module.exports = {
                 test: /\.less$/,
                 loader: "style-loader!css-loader!less-loader"
             }, {
+                test:/\.md/,
+                //exclude:/node_modules/,
+                loader:"html-loader!markdown-loader"
+            },{
                 test: /\.(woff|svg|eot|ttf)\??.*$/,
                 loader: 'url-loader?limit=50000&name=[path][name].[ext]'
             },{

@@ -1,5 +1,23 @@
-export default {
+export default [{
     path: '/',
+    indexRoute: {
+        getComponent(nextState, cb) {
+            require.ensure([], (require) => {
+                cb(null, require('../containers/Login'))
+            }, 'Home')
+        },
+    },
+}, {
+    path: '/api',
+    indexRoute: {
+        getComponent(nextState, cb) {
+            require.ensure([], (require) => {
+                cb(null, require('../containers/API'))
+            }, 'api')
+        },
+    },
+},{
+    path: '/home',
     indexRoute: {
         getComponent(nextState, cb) {
             require.ensure([], (require) => {
@@ -59,4 +77,4 @@ export default {
         }
 
     ]
-}
+}]
