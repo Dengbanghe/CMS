@@ -10,7 +10,7 @@ const columns = [{
     dataIndex: 'account',
     width: 100,
     fixed: 'left',
-    sorter: true
+    sorter: true,
 }, {
     title: '用户名',
     dataIndex: 'nickname',
@@ -138,12 +138,11 @@ class User extends Component{
     }
     //分页 排序 过滤 触发回调方法
     pageChange = (pagination, filters, sorter) => {
-        let sort = sorter.field===undefined?{}:{order:sorter.field,orderBy:sorter.order}
+        let sort = sorter.field===undefined?{}:{order:sorter.field,orderby:sorter.order==='ascend' ? 'asc' :sorter.order ==='descend'? 'desc':''}
         this.getData({...pagination,...sort})
     }
 
     saveFormRef = (form) =>{
-        console.log(form)
         this.form =form
     }
     addUser = () => {
