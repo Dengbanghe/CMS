@@ -10,6 +10,9 @@ class Login extends  React.Component{
         const {router} = this.props
         const form = this.props.form
         form.validateFields(async(err,values)=>{
+            if(err){
+                return
+            }
             router.push('/home')
         })
     }
@@ -30,7 +33,7 @@ class Login extends  React.Component{
                 <Form onsubmit={this.handleSubmit} >
                     <FormItem>
                         {getFieldDecorator('account', {
-                            rules: [{required: true, massage: '请输入用户名'}]
+                            rules: [{required: true, message: '请输入用户名'}]
                         })(
                             <Input placeholder="用户名" prefix={<Icon type="user"/>}/>
                         )}
@@ -39,7 +42,7 @@ class Login extends  React.Component{
                         {getFieldDecorator('password', {
                             rules: [{required: true, message: '请输入密码'}]
                         })(
-                            <Input type='password' placeholder="密码" prefix={<Icon/>}/>
+                            <Input type='password' placeholder="密码" prefix={<Icon type='lock' />}/>
                         )}
                     </FormItem>
                     <Button type="primary" size="large" onClick={this.loginSubmit} style={{width:350}}>登录</Button>

@@ -58,18 +58,23 @@ const fetch=async(url,data,method='post')=>{
  *      排序方法 {Function} 同 Array.sort的参数
  * @returns {Array}
  */
-const transfer2tree = (data, {parentId, idField, pidField,sort}={}) => {
+const transfer2tree = (data, {rootId, idField, pidField,sort}={}) => {
     const itemArr = []
 
     idField = idField == undefined ? '_id' : idField
     pidField = pidField == undefined ? '_pid' : pidField
-    parentId = parentId == undefined ? '0' :parentId
+    rootId = rootId == undefined ? '0' :rootId
     if(sort){
         data = data.sort(sort)
     }
     for (let item of data) {
-        if (item[pidField] == parentId) {
-            itemArr.push({...item, children: transfer2tree(data, {parentId:item[idField], idField:idField, pidField:pidField})})
+        if (item[pidField] == rootId) {
+            let children = transfer2tree(data, {rootId:item[idField], idField:idField, pidField:pidField})
+            if(children.length>0){
+                itemArr.push({...item, children: children})
+            }else {
+                itemArr.push(item)
+            }
         }
     }
     return itemArr;

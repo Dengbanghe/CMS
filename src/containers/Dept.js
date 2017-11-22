@@ -19,14 +19,14 @@ class DeptForm extends Component {
                 )}
                 <FormItem label="部门编码">
                     {getFieldDecorator('deptcode', {
-                        rules: [{required: true}],
+                        rules: [{required: true,message:'编码不能为空'}],
                     })(
                         <Input disabled={editing}/>
                     )}
                 </FormItem>
                 <FormItem label="部门名称">
                     {getFieldDecorator('deptname', {
-                        rules: [{required: true}],
+                        rules: [{required: true,message:'部门名称不能为空'}],
                     })(
                         <Input disabled={editing}/>
                     )}
@@ -73,7 +73,7 @@ class Dept extends Component {
         //     key_parent: 'pid',
         //     key_child: 'children'
         // }).GetTree()
-        let treeData = transfer2tree(data)
+        let treeData = transfer2tree(data,{rootId:'dept_0'})
         this.setState({data: [...treeData], loading: false})
     }
     onSelect = (selectedKeys, {selected, selectedNodes, node, event}) => {
@@ -110,16 +110,16 @@ class Dept extends Component {
                 return;
             }
             this.setState({confirmLoading: true});
-            fetch(`${remoteHost}/dept/saveUpdate`, values)
+            fetch(`${remoteHost}/dept/saveUpdat`, values)
             this.getData()
             if (this.state.isAdding) {
                 form.setFieldsValue(this.state.formData)
             }
-            this.setState({modalVisible: false, confirmLoading: false,});
+            this.setState({isEditing: false, isAdding: false, confirmLoading: false});
         });
     }
     cancel = () => {
-        this.setState({isEditing: false, isAdding: false})
+        this.setState({isEditing: false, isAdding: false,confirmLoading: false})
         this.form.setFieldsValue(this.state.formData)
     }
 
@@ -141,7 +141,7 @@ class Dept extends Component {
     }
 
     render() {
-        const {data, isAdding, isEditing,drap} = this.state,
+        const {data, isAdding, isEditing,drap,confirmLoading} = this.state,
             editing = !(isAdding || isEditing)
         const loop = data => {
             return data.map((item) => {
@@ -179,6 +179,7 @@ class Dept extends Component {
                         <div style={{marginBottom: 16}}>
                             <Button
                                 type="primary"
+                                loading={confirmLoading}
                                 onClick={editing == true ? this.addDept : this.saveUpdate}
                             >
                                 {editing == true ? '新增' : '保存'}

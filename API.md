@@ -94,7 +94,7 @@ res:[
     {guid: 3, deptcode: '03', deptname: '测试部门03', remark: 'beizhu03', pid: 2, _id: 'dept_3', _pid: '2', _title: '测试部门03'},
     {guid: 4, deptcode: '04', deptname: '测试部门04', remark: 'beizhu04', pid: 0, _id: 'dept_4', _pid: '0', _title: '测试部门04'},
     {guid: 1, postname: '岗位01', remark: '', fDeptid: 3, enable: 0, _id: 'post_1', _pid: '3', _title: '岗位01'},
-    {guid: 2, postname: '岗位02', remark: '', fDeptid: 3, enable: 0, _id: 'post_1', _pid: '3', _title: '岗位02'}
+    {guid: 2, postname: '岗位02', remark: '', fDeptid: 3, enable: 0, _id: 'post_2', _pid: '3', _title: '岗位02'}
 ]
 ```
 新增修改岗位  **/post/saveUpdate**
