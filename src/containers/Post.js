@@ -8,8 +8,9 @@ const TreeNode = Tree.TreeNode
 class Post extends React.Component {
     state = {
         data:[],
-        isPost:false,
-        isDept:false
+        treeNoddType:'',
+        loading:false,
+
     }
     componentDidMount(){
         this.getData()
@@ -21,6 +22,9 @@ class Post extends React.Component {
     }
 
     onSelect=(selectedKeys, {selected, selectedNodes, node, event})=>{
+        console.log(selectedKeys)
+        console.log(node)
+        console.log(selected)
         let nodeData = {}
         if (selectedNodes[0]) {
             nodeData = selectedNodes[0].props.dataRef
@@ -63,10 +67,7 @@ class Post extends React.Component {
                 }
             </div>
         )
-
-
     }
 }
-
 
 module.exports = connect()(Post)
