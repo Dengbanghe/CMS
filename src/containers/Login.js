@@ -37,13 +37,12 @@ class Login extends  React.Component{
                     </FormItem>
                     <FormItem>
                         {getFieldDecorator('password', {
-                            rules: [{required: true, massage: '请输入密码'}]
+                            rules: [{required: true, message: '请输入密码'}]
                         })(
                             <Input type='password' placeholder="密码" prefix={<Icon/>}/>
                         )}
                     </FormItem>
                     <Button type="primary" size="large" onClick={this.loginSubmit} style={{width:350}}>登录</Button>
-
                 </Form>
             </div>
         )

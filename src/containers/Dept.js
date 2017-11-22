@@ -1,15 +1,14 @@
-import React, {Component} from 'react' // 引入React
+import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {Button, Form, Input, Tree, Spin, Row, Col} from 'antd'
-import {fetch, remoteHost} from '../util/common'
-import LTT from 'list-to-tree'
+import {fetch, transfer2tree,remoteHost,treeLooper} from '../util/common'
 const FormItem = Form.Item;
 const TreeNode = Tree.TreeNode
 
 class DeptForm extends Component {
     render() {
         const {getFieldDecorator} = this.props.form,
-            {isAdding, isEditing, editing} = this.props
+            {editing} = this.props
         return (
             <Form>
                 {getFieldDecorator('guid')(
@@ -59,7 +58,7 @@ class Dept extends Component {
         confirmLoading: false,//提交按钮加载状态
         isAdding: false,//新增状态
         isEditing: false,//编辑状态
-        drap:false
+        drap:false//是否进行脱宅
     }
 
     componentDidMount() {
@@ -69,12 +68,12 @@ class Dept extends Component {
     getData = async (param) => {
         this.setState({loading: true})
         let data = await fetch(`${remoteHost}/dept/tree`, param)
-        data.push({})
-        let treeData = new LTT([...data], {
-            key_id: 'guid',
-            key_parent: 'pid',
-            key_child: 'children'
-        }).GetTree()
+        // let treeData = new LTT([...data], {
+        //     key_id: 'guid',
+        //     key_parent: 'pid',
+        //     key_child: 'children'
+        // }).GetTree()
+        let treeData = transfer2tree(data)
         this.setState({data: [...treeData], loading: false})
     }
     onSelect = (selectedKeys, {selected, selectedNodes, node, event}) => {
@@ -171,7 +170,7 @@ class Dept extends Component {
                             onRightClick={this.onRightClick}
                             onDrop={this.onDrop}
                         >
-                            {loop(data)}
+                            {treeLooper(data)}
                         </Tree> : <Spin spinning={true}></Spin>
                         }
 

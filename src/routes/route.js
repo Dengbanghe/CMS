@@ -13,7 +13,7 @@ export default [{
         getComponent(nextState, cb) {
             require.ensure([], (require) => {
                 cb(null, require('../containers/API'))
-            }, 'api')
+            }, 'API')
         },
     },
 },{
@@ -45,6 +45,14 @@ export default [{
                 require.ensure([], (require) => {
                     cb(null, require('../containers/Dept'))
                 }, 'Dept')
+            }
+        },{
+            path: '/post',
+            // onEnter: (_, replaceState) => replaceState(null, "/404")
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/Post'))
+                }, 'Post')
             }
         },{
             path: '/region',

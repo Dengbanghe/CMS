@@ -4,7 +4,7 @@
   "description": "银股通后台内容管理 前端项目",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --devtool eval --progress --colors ",
+    "dev": "webpack-dev-server --devtool eval --progress --colors --host 0.0.0.0 ",
     "build": "webpack"
   },
   "author": "DATANEW-AndrewHe",

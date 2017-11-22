@@ -4,10 +4,18 @@ var path = require('path');
 var webpack = require('webpack');
 module.exports = {
     // devtool: 'source-map', // 如果出错，可以知道源文件的位置 -- 这个会使得编译后的js文件变大
-    entry: './index.js',
+    // entry: './index.js',
+    entry: {
+        bundle: './index.js',
+        vendor: ['react']
+    },
+    // entry:{
+    //     'main': './index.js',
+    //     'common': './src/util/common.js'
+    // },
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: 'bundle.js',
+        filename: '[name].js',
         chunkFilename: '[name].[chunkhash:5].chunk.js'
     },
     devServer: {
@@ -47,6 +55,12 @@ module.exports = {
     },
 
     plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+            //公共块的块名称
+            name: 'vendor',
+            //生成的文件名
+            filename: 'vendor.js'
+        }),
         new webpack.LoaderOptionsPlugin({
             // test: /\.xxx$/, // may apply this only f
             options: {
