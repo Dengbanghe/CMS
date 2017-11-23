@@ -1,18 +1,25 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Button, Form, Input, Tree, Spin, Row, Col,Checkbox} from 'antd'
-import {fetch, transfer2tree,remoteHost} from '../util/common'
+import {Button, Form, Input, Tree, Spin, Row, Col, Checkbox} from 'antd'
+import {fetch, transfer2tree, remoteHost} from '../util/common'
 const FormItem = Form.Item;
 const TreeNode = Tree.TreeNode
-class PostForm extends React.Component{
+const ButtonGroup = Button.Group
+class PostForm extends React.Component {
     render() {
         const {getFieldDecorator} = this.props.form
-        const {enableSwitch,setEnableSwitch,disabled,checkBoxOnChange,checkBoxState} = this.props
+        const {enableSwitch, disabled, checkBoxOnChange, checkBoxState} = this.props
         return (
             <Form>
+                {getFieldDecorator('guid')(
+                    <Input type="hidden"/>
+                )}
+                {getFieldDecorator('fDeptid')(
+                    <Input type="hidden"/>
+                )}
                 <FormItem label="岗位名称">
                     {getFieldDecorator('postname', {
-                        rules:[{required:true,message:'请输入岗位名称'}]
+                        rules: [{required: true, message: '请输入岗位名称'}]
                     })(
                         <Input disabled={disabled}/>
                     )}
@@ -25,7 +32,7 @@ class PostForm extends React.Component{
                             checked={checkBoxState}
                             onChange={checkBoxOnChange}
                             disabled={disabled}
-                        >{enableSwitch==true?'启用':'禁用'}</Checkbox>
+                        >{enableSwitch == true ? '启用' : '禁用'}</Checkbox>
                     )}
                 </FormItem>
                 <FormItem label="备注">
@@ -42,103 +49,145 @@ const WrappedPostForm = Form.create()(PostForm);
 
 class Post extends React.Component {
     state = {
-        data:[],
-        mainBtn:{text:'新增',disabled:true,display:true},
-        submitBtn:{text:'提交',display:false},
-        cancelBtn:{text:'取消',display:false},
-        transferBtn:{text:'关联角色',disabled:true},
-        checkBoxState:false,
-        isEdit:false,
-        enableSwitch:false,
-        loading:false,
-        disabled:true,
-        buttonText:'新增',
+        data: [],
+        selectedNode: {},
+        mainBtn: {text: '新增', disabled: true, display: true},
+        submitBtn: {text: '提交', display: false},
+        cancelBtn: {text: '取消', display: false},
+        transferBtn: {text: '关联角色', disabled: true},
+        checkBoxState: false,
+        isEdit: false,
+        enableSwitch: false,
+        loading: false,
+        disabled: true,
+        buttonText: '新增',
 
     }
-    componentDidMount(){
+
+    componentDidMount() {
         this.getData()
     }
-    getData=async(param)=>{
-        const data = await fetch(`${remoteHost}/post/tree`,param)
-        let treeData = transfer2tree(data,{rootId:'dept_0'})
-        this.setState({data:[...treeData]})
+
+    getData = async (param) => {
+        const data = await fetch(`${remoteHost}/post/tree`, param)
+        let treeData = transfer2tree(data, {rootId: 'dept_0'})
+        this.setState({data: [...treeData]})
     }
-    getForm=form=>{
-        this.form=form
+    getForm = form => {
+        this.form = form
     }
 
 
-    saveUpdate=()=>{
+    saveUpdate = () => {
         const form = this.form
-        form.validateFields(async(err,values)=>{
+        form.validateFields(async (err, values) => {
+            values = {...values, enable: values.enable == true ? '1' : '0'}
             console.log(values)
-            values={...values,enable:values.enable==true?'1':'0'}
+            let result = await fetch(`${remoteHost}/post/saveUpdate`, values)
+            if (result.success) {
+                if (this.state.selectedNode._id.includes('post')) {
+                    this.selectedPost()
+                    this.getData()
+                } else {
+                    this.selectedDept()
+                }
+            }
+
         })
     }
-    commit=()=>{
-        console.log(123)
-    }
-    onSelect=(selectedKeys, {selected, selectedNodes, node, event})=>{
+
+
+    selectedNode = () => {
         const form = this.form
-        if(selectedKeys.length==0){
-            form.resetFields();
-            this.setState({mainBtn:{...this.state.mainBtn,disabled:true,display:true,text:'新增'},
-                submitBtn:{...this.state.submitBtn,display:false},
-                cancelBtn:{...this.state.cancelBtn,display:false},
-                transferBtn:{...this.state.transferBtn,disabled:true},
-                disabled:true,
-                checkBoxState:false
-            })
+        form.resetFields();
+        this.setState({
+            mainBtn: {...this.state.mainBtn, disabled: true, display: true, text: '新增'},
+            submitBtn: {...this.state.submitBtn, display: false},
+            cancelBtn: {...this.state.cancelBtn, display: false},
+            transferBtn: {...this.state.transferBtn, disabled: true},
+            disabled: true,
+            checkBoxState: false
+        })
+    }
+    selectedPost = nodeData => {
+        if (nodeData) {
+            this.form.setFieldsValue({...nodeData})
+            this.setState({checkBoxState: nodeData.enable == 1})
+        }
+        this.setState({
+            mainBtn: {...this.state.mainBtn, disabled: false, display: true, text: '修改'},
+            transferBtn: {...this.state.transferBtn, disabled: false},
+            submitBtn: {...this.state.submitBtn, display: false},
+            cancelBtn: {...this.state.cancelBtn, display: false},
+            disabled: true
+        })
+    }
+    selectedDept = nodeData => {
+        if (nodeData) {
+            this.form.resetFields()
+            this.form.setFieldsValue({fDeptid: nodeData.guid,})
+            this.setState({checkBoxState: false})
+        }
+        this.setState({
+            mainBtn: {...this.state.mainBtn, disabled: false, display: true, text: '新增'},
+            transferBtn: {...this.state.transferBtn, disabled: true},
+            submitBtn: {...this.state.submitBtn, display: false},
+            cancelBtn: {...this.state.cancelBtn, display: false},
+            disabled: true
+        })
+    }
+
+
+    onSelect = (selectedKeys, {selected, selectedNodes, node, event}) => {
+        const form = this.form
+        if (selectedKeys.length == 0) {
+            this.selectedNode()
             return
         }
         let nodeData = {}
         if (selectedNodes[0]) {
             nodeData = selectedNodes[0].props.dataRef
         }
+        this.setState({selectedNode: nodeData})
+
         form.resetFields();
-        if(selectedKeys[0].includes('dept')){
-            this.setState({mainBtn:{...this.state.mainBtn,disabled:false,display:true,text:'新增'},
 
-            })
-            form.setFieldsValue({fDeptid:nodeData.guid})
-        }else{
-            this.form.setFieldsValue({...nodeData})
-            this.setState({
-                mainBtn:{...this.state.mainBtn,disabled:false,display:true,text:'修改'},
-            })
+        if (selectedKeys[0].includes('dept') && (nodeData.children.length == 0 || nodeData.children[0]._id.includes('post'))) {
+            this.selectedDept(nodeData)
+        } else if (selectedKeys[0].includes('post')) {
+            this.selectedPost(nodeData)
+        } else {
+            this.selectedNode()
         }
-        this.setState({
-            checkBoxState:nodeData.enable==1,
-            submitBtn:{...this.state.submitBtn,display:false},
-            cancelBtn:{...this.state.cancelBtn,display:false},
-            transferBtn:{...this.state.transferBtn,disabled:false},
-            disabled:true
-        })
-        // this.setState({isEditing: false, isAdding: false, formData: nodeData})
     }
-    // setEnableSwitch=checked=>{
-    //     this.setState({enableSwitch:checked})
-    // }
-    addOrEdit=()=>{
-        this.setState({mainBtn:{...this.state.mainBtn,display:false},
-            submitBtn:{...this.state.submitBtn,display:true},
-            cancelBtn:{...this.state.cancelBtn,display:true},
-            transferBtn:{...this.state.transferBtn,disabled:true},
-            disabled:false,
+
+    addOrEdit = () => {
+        this.setState({
+            mainBtn: {...this.state.mainBtn, display: false},
+            submitBtn: {...this.state.submitBtn, display: true},
+            cancelBtn: {...this.state.cancelBtn, display: true},
+            transferBtn: {...this.state.transferBtn, disabled: true},
+            disabled: false,
         })
     }
 
 
-    cancel=()=>{
-
+    cancel = () => {
+        const nodeData = this.state.selectedNode;
+        if (nodeData._id.includes('post')) {
+            this.selectedPost(nodeData)
+        } else {
+            this.selectedDept(nodeData)
+        }
     }
-    checkBoxOnChange= (e) => {
+    checkBoxOnChange = e => {
         this.setState({
-            checkBoxState: e.target.checked,
+            checkBoxState: e.target.checked
         });
     }
+
     render() {
-        const {data,enableSwitch,disabled,mainBtn,submitBtn,cancelBtn,transferBtn,isEdit,checkBoxState} = this.state
+        const {data, enableSwitch, disabled, mainBtn, submitBtn, cancelBtn, transferBtn, checkBoxState} = this.state
         const loop = data => {
             return data.map((item) => {
                 if (item.children) {
@@ -156,34 +205,34 @@ class Post extends React.Component {
                 <Row>
                     <Col span={8}>
                         {data.length > 0 ? <Tree
-                            // onDragEnd={this.onDragEnd}
                             showLine={true}
                             defaultExpandAll={true}
                             autoExpandParent={true}
                             onSelect={this.onSelect}
-                            // onRightClick={this.onRightClick}
-                            // onDrop={this.onDrop}
                         >
                             {loop(data)}
                         </Tree> : <Spin spinning={true}></Spin>
                         }
                     </Col>
                     <Col span={16}>
-                        <Button
-                            type=''
-                            loading={false}
-                            onClick={this.addOrEdit}
-                            disabled={mainBtn.disabled}
-                            style={mainBtn.display==true?{}:{display:'none'}}
-                        >{mainBtn.text}</Button>
-                        <Button style={submitBtn.display==true?{}:{display:'none'}} onClick={this.saveUpdate}>{submitBtn.text}</Button>
-                        <Button style={cancelBtn.display==true?{}:{display:'none'}} onClick={this.cancel}>{cancelBtn.text}</Button>
+                        <ButtonGroup>
+                            <Button
+                                type=''
+                                loading={false}
+                                onClick={this.addOrEdit}
+                                disabled={mainBtn.disabled}
+                                style={mainBtn.display == true ? {} : {display: 'none'}}
+                            >{mainBtn.text}</Button>
+                            <Button style={submitBtn.display == true ? {} : {display: 'none'}}
+                                    onClick={this.saveUpdate}>{submitBtn.text}</Button>
+                            <Button style={cancelBtn.display == true ? {} : {display: 'none'}}
+                                    onClick={this.cancel}>{cancelBtn.text}</Button>
 
-                        <Button disabled={transferBtn.disabled}>{transferBtn.text}</Button>
+                            <Button disabled={transferBtn.disabled}>{transferBtn.text}</Button>
+                        </ButtonGroup>
                         <WrappedPostForm
                             ref={this.getForm}
                             enableSwitch={enableSwitch}
-                            setEnableSwitch={this.setEnableSwitch}
                             disabled={disabled}
                             checkBoxOnChange={this.checkBoxOnChange}
                             checkBoxState={checkBoxState}

@@ -28,7 +28,7 @@ const SubMenu = Menu.SubMenu;
                     <SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>
                         <Menu.Item key="9"><Link to="/dept">部门管理</Link></Menu.Item>
                         <Menu.Item key="10"><Link to="/post">岗位管理</Link></Menu.Item>
-                        <Menu.Item key="11">角色管理</Menu.Item>
+                        <Menu.Item key="11"><Link to="/role">角色管理</Link></Menu.Item>
                         <Menu.Item key="12">菜单管理</Menu.Item>
                         <Menu.Item key="13"><Link to="/user">用户管理</Link></Menu.Item>
                     </SubMenu>
@@ -37,7 +37,6 @@ const SubMenu = Menu.SubMenu;
             <div className="ant-layout-main">
                 <div className="ant-layout-header"></div>
                 <div className="ant-layout-breadcrumb">
-
                     <Breadcrumb>
                         {/*{*/}
                             {/*breadcrumbList.map((item,i)=>{*/}

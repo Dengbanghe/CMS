@@ -54,6 +54,13 @@ export default [{
                     cb(null, require('../containers/Post'))
                 }, 'Post')
             }
+        }, {
+            path: '/role',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/Role'))
+                }, 'Role')
+            }
         },{
             path: '/region',
             getComponent(nextState, cb) {
