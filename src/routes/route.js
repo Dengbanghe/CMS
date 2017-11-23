@@ -62,6 +62,13 @@ export default [{
                 }, 'Role')
             }
         },{
+            path: '/menu',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/Menu'))
+                }, 'Menu')
+            }
+        },{
             path: '/region',
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {

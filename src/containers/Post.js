@@ -1,6 +1,6 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Button, Form, Input, Tree, Spin, Row, Col, Checkbox} from 'antd'
+import {Button, Form, Input, Tree, Spin, Row, Col, Checkbox,Transfer} from 'antd'
 import {fetch, transfer2tree, remoteHost} from '../util/common'
 const FormItem = Form.Item;
 const TreeNode = Tree.TreeNode
@@ -46,7 +46,12 @@ class PostForm extends React.Component {
 }
 
 const WrappedPostForm = Form.create()(PostForm);
-
+const mockData=[
+    {guid: 1, rolename: '角色01',  remark: 'beizhu01', enable: 1},
+    {guid: 2, rolename: '角色02',  remark: 'beizhu02', enable: 1},
+    {guid: 3, rolename: '角色03',  remark: 'beizhu03', enable: 1},
+    {guid: 4, rolename: '角色04',  remark: 'beizhu04', enable: 1}
+]
 class Post extends React.Component {
     state = {
         data: [],
@@ -59,8 +64,11 @@ class Post extends React.Component {
         isEdit: false,
         enableSwitch: false,
         loading: false,
+        transferLoading:false,
         disabled: true,
         buttonText: '新增',
+
+        roleTransfer:{targetKeys:[],selectedKeys:[],activated:false}
 
     }
 
@@ -186,8 +194,18 @@ class Post extends React.Component {
         });
     }
 
+    transferChange = (nextTargetKeys,direction,moveKeys)=>{
+        let roleTransfer = this.state.roleTransfer
+        this.setState({roleTransfer:{...roleTransfer,targetKeys:nextTargetKeys }})
+    }
+    transferSelectedChange = (sSelectedKeys,tSelectedKeys)=>{
+        let roleTransfer = this.state.roleTransfer
+        this.setState({roleTransfer:{...roleTransfer,selectedKeys:[...sSelectedKeys],targetKeys:[...tSelectedKeys]}})
+    }
     render() {
-        const {data, enableSwitch, disabled, mainBtn, submitBtn, cancelBtn, transferBtn, checkBoxState} = this.state
+        const {data, enableSwitch, disabled, mainBtn, submitBtn, cancelBtn, transferBtn, checkBoxState,
+            roleTransfer
+        } = this.state
         const loop = data => {
             return data.map((item) => {
                 if (item.children) {
@@ -200,6 +218,7 @@ class Post extends React.Component {
                 return <TreeNode key={item._id} title={item._title} dataRef={item}/>
             });
         }
+
         return (
             <div>
                 <Row>
@@ -214,10 +233,10 @@ class Post extends React.Component {
                         </Tree> : <Spin spinning={true}></Spin>
                         }
                     </Col>
-                    <Col span={16}>
+                    <Col span={16} style={roleTransfer.activated==true?{display:'none'}:{}}>
                         <ButtonGroup>
                             <Button
-                                type=''
+                                type='primary'
                                 loading={false}
                                 onClick={this.addOrEdit}
                                 disabled={mainBtn.disabled}
@@ -228,7 +247,9 @@ class Post extends React.Component {
                             <Button style={cancelBtn.display == true ? {} : {display: 'none'}}
                                     onClick={this.cancel}>{cancelBtn.text}</Button>
 
-                            <Button disabled={transferBtn.disabled}>{transferBtn.text}</Button>
+                            <Button disabled={transferBtn.disabled}
+                                onClick={()=>{this.setState({roleTransfer:{...roleTransfer,activated:true}})}}
+                            >{transferBtn.text}</Button>
                         </ButtonGroup>
                         <WrappedPostForm
                             ref={this.getForm}
@@ -236,6 +257,21 @@ class Post extends React.Component {
                             disabled={disabled}
                             checkBoxOnChange={this.checkBoxOnChange}
                             checkBoxState={checkBoxState}
+                        />
+                    </Col>
+                    <Col span={16} style={roleTransfer.activated==false?{display:'none'}:{}}>
+
+                            <Button
+                            onClick={()=>{this.setState({roleTransfer:{...roleTransfer,activated:false}})}}>岗位维护</Button>
+                        <Transfer
+                             dataSource={mockData.map((item)=>{return{...item,key:item.guid.toString(),}})}
+                            titles={['未关联', '已关联角色']}
+                            targetKeys={roleTransfer.targetKeys}
+                            selectedKeys={roleTransfer.selectedKeys}
+                            onChange={this.transferChange}
+                            onSelectChange={this.transferSelectedChange}
+                            // onScroll={this.handleScroll}
+                            render={item => item.rolename}
                         />
                     </Col>
                 </Row>
