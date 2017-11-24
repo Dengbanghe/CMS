@@ -25,16 +25,13 @@ const fetch=async(url,data,method='post')=>{
         res = await isofetch(url, {method: method, body: formData})
         if (res.status === 200) {
             result = await res.json();
-            let success = result.success
-            if(success!=null){
-                if(success){
-                    message.success(result.message)
-                }else{
-                    message.error(result.message)
-                }
+            if(result.success){
+                message.success(result.message)
             }
         }else if(res.status === 404){
             message.error(`请求的资源 ${url} 不存在 请联系管理员`)
+        }else if(res.status === 500){
+            message.error(result.message)
         }
     }catch(e){
         message.error(e)
@@ -91,7 +88,7 @@ const treeLooper = data => {
         return <TreeNode key={item._id} title={item._title} dataRef={item}/>
     });
 }
-const remoteHost = 'http://localhost:9876'
+const remoteHost = 'http://172.16.12.187:9876'
 module.exports ={fetch, transfer2tree,remoteHost,treeLooper}
 
 

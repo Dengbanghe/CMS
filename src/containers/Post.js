@@ -68,7 +68,7 @@ class Post extends React.Component {
         disabled: true,
         buttonText: '新增',
 
-        roleTransfer:{targetKeys:[],selectedKeys:[],activated:false}
+        roleTransfer:{roleData:[],targetKeys:[],selectedKeys:[],activated:false}
 
     }
 
@@ -77,9 +77,12 @@ class Post extends React.Component {
     }
 
     getData = async (param) => {
+
         const data = await fetch(`${remoteHost}/post/tree`, param)
-        let treeData = transfer2tree(data, {rootId: 'dept_0'})
-        this.setState({data: [...treeData]})
+        let roleTransfer = this.state.roleTransfer
+        let treeData = transfer2tree(data.tree, {rootId: 'dept_0'})
+        this.setState({data: [...treeData],
+            roleTransfer:{...roleTransfer,roleData:data.roles}})
     }
     getForm = form => {
         this.form = form
@@ -106,41 +109,46 @@ class Post extends React.Component {
 
 
     selectedNode = () => {
-        const form = this.form
-        form.resetFields();
+        this.form.resetFields();
+        const {mainBtn,submitBtn,cancelBtn,transferBtn,roleTransfer} = this.state
         this.setState({
-            mainBtn: {...this.state.mainBtn, disabled: true, display: true, text: '新增'},
-            submitBtn: {...this.state.submitBtn, display: false},
-            cancelBtn: {...this.state.cancelBtn, display: false},
-            transferBtn: {...this.state.transferBtn, disabled: true},
+            mainBtn: {...mainBtn, disabled: true, display: true, text: '新增'},
+            submitBtn: {...submitBtn, display: false},
+            cancelBtn: {...cancelBtn, display: false},
+            transferBtn: {...transferBtn, disabled: true},
+            roleTransfer:{...roleTransfer,activated:false},
             disabled: true,
             checkBoxState: false
         })
     }
     selectedPost = nodeData => {
+        const {mainBtn,submitBtn,cancelBtn,transferBtn,roleTransfer} = this.state
         if (nodeData) {
             this.form.setFieldsValue({...nodeData})
             this.setState({checkBoxState: nodeData.enable == 1})
         }
         this.setState({
-            mainBtn: {...this.state.mainBtn, disabled: false, display: true, text: '修改'},
-            transferBtn: {...this.state.transferBtn, disabled: false},
-            submitBtn: {...this.state.submitBtn, display: false},
-            cancelBtn: {...this.state.cancelBtn, display: false},
+            mainBtn: {...mainBtn, disabled: false, display: true, text: '修改'},
+            transferBtn: {...transferBtn, disabled: false},
+            submitBtn: {...submitBtn, display: false},
+            cancelBtn: {...cancelBtn, display: false},
+            roleTransfer:{...roleTransfer,activated:false},
             disabled: true
         })
     }
     selectedDept = nodeData => {
+        const {mainBtn,submitBtn,cancelBtn,transferBtn,roleTransfer} = this.state
         if (nodeData) {
             this.form.resetFields()
             this.form.setFieldsValue({fDeptid: nodeData.guid,})
             this.setState({checkBoxState: false})
         }
         this.setState({
-            mainBtn: {...this.state.mainBtn, disabled: false, display: true, text: '新增'},
-            transferBtn: {...this.state.transferBtn, disabled: true},
-            submitBtn: {...this.state.submitBtn, display: false},
-            cancelBtn: {...this.state.cancelBtn, display: false},
+            mainBtn: {...mainBtn, disabled: false, display: true, text: '新增'},
+            transferBtn: {...transferBtn, disabled: true},
+            submitBtn: {...submitBtn, display: false},
+            cancelBtn: {...cancelBtn, display: false},
+            roleTransfer:{...roleTransfer,activated:false},
             disabled: true
         })
     }
@@ -194,14 +202,30 @@ class Post extends React.Component {
         });
     }
 
-    transferChange = (nextTargetKeys,direction,moveKeys)=>{
-        let roleTransfer = this.state.roleTransfer
-        this.setState({roleTransfer:{...roleTransfer,targetKeys:nextTargetKeys }})
+    transferChange = async (nextTargetKeys,direction,moveKeys)=>{
+        let roleTransfer = {...this.state.roleTransfer}
+        this.state.selectedNode.guid
+        let data = await fetch(`${remoteHost}/postRole/saveUpdate`,{
+            postId : this.state.selectedNode.guid,
+            roleIds: nextTargetKeys.join(",")
+        })
+       if(data.success){
+           this.setState({roleTransfer:{...roleTransfer,targetKeys:nextTargetKeys }})
+       }
     }
     transferSelectedChange = (sSelectedKeys,tSelectedKeys)=>{
-        let roleTransfer = this.state.roleTransfer
-        this.setState({roleTransfer:{...roleTransfer,selectedKeys:[...sSelectedKeys],targetKeys:[...tSelectedKeys]}})
+        let roleTransfer = {...this.state.roleTransfer}
+        this.setState({roleTransfer:{...roleTransfer,selectedKeys:[...sSelectedKeys,...tSelectedKeys]}})
     }
+    activat = async()=>{
+        let {roleTransfer,selectedNode} =this.state
+        if(selectedNode.guid){
+            let result = await fetch(`${remoteHost}/post/getRoleIds`,{postId:selectedNode.guid})
+            this.setState({roleTransfer:{...roleTransfer,targetKeys:result,activated:true}})
+        }
+        // this.setState({roleTransfer:{...roleTransfer,activated:true}})
+    }
+
     render() {
         const {data, enableSwitch, disabled, mainBtn, submitBtn, cancelBtn, transferBtn, checkBoxState,
             roleTransfer
@@ -248,7 +272,7 @@ class Post extends React.Component {
                                     onClick={this.cancel}>{cancelBtn.text}</Button>
 
                             <Button disabled={transferBtn.disabled}
-                                onClick={()=>{this.setState({roleTransfer:{...roleTransfer,activated:true}})}}
+                                onClick={this.activat}
                             >{transferBtn.text}</Button>
                         </ButtonGroup>
                         <WrappedPostForm
@@ -261,10 +285,10 @@ class Post extends React.Component {
                     </Col>
                     <Col span={16} style={roleTransfer.activated==false?{display:'none'}:{}}>
 
-                            <Button
+                            <Button style={{marginBottom:10}}
                             onClick={()=>{this.setState({roleTransfer:{...roleTransfer,activated:false}})}}>岗位维护</Button>
                         <Transfer
-                             dataSource={mockData.map((item)=>{return{...item,key:item.guid.toString(),}})}
+                             dataSource={roleTransfer.roleData.map((item)=>{return{...item,key:item.guid.toString(),disabled:item.enable==1}})}
                             titles={['未关联', '已关联角色']}
                             targetKeys={roleTransfer.targetKeys}
                             selectedKeys={roleTransfer.selectedKeys}

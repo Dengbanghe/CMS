@@ -1,10 +1,11 @@
 import React from 'react'
 import {connect} from 'react-redux'
-import {Table, Button, Form, Modal, Input, Checkbox} from 'antd'
-import {fetch, remoteHost} from '../util/common'
+import {Table, Button, Form, Modal, Input, Checkbox,Tree,Spin} from 'antd'
+import {fetch, remoteHost,transfer2tree} from '../util/common'
 const FormItem = Form.Item
 const ButtonGrid = Button.Group
 const confirm = Modal.confirm
+const TreeNode = Tree.TreeNode
 
 const RoleForm = Form.create()(
     (props) => {
@@ -52,24 +53,7 @@ const RoleForm = Form.create()(
 )
 
 
-const columns = [{
-    title: '角色名称',
-    dataIndex: 'rolename',
-    width: 150
-}, {
-    title: '状态',
-    dataIndex: 'enable',
-    width: 150,
-    render: text => text == 1 ? '启用' : '禁用'
-}, {
-    title: '创建时间',
-    dataIndex: 'addtime',
-    width: 150
-}, {
-    title: '备注',
-    dataIndex: 'remark',
-    width: 400,
-}];
+
 class Role extends React.Component {
     state = {
         data: [],
@@ -80,6 +64,7 @@ class Role extends React.Component {
         formData: {},
         confirmLoading: false,
         checkBoxState: false,
+        menu:{modalVisible:false,tree:[],checkedKeys:[]}
     }
 
     componentDidMount() {
@@ -87,9 +72,11 @@ class Role extends React.Component {
     }
 
     getData = async (param) => {
+        const {menu} = this.state
         this.setState({loading: true})
-        let data = await fetch(`${remoteHost}/role/list`, param)
-        this.setState({data: data, loading: false})
+        let data = await fetch(`${remoteHost}/role/pageData`, param)
+        let treeData = transfer2tree(data.menuTree,{rootId:'menu_0'})
+        this.setState({data: data.roles, loading: false,menu:{...menu,tree:treeData}})
     }
     getForm = form => {
         this.form = form
@@ -145,8 +132,56 @@ class Role extends React.Component {
         this.selectRow([record])
     }
 
+    openMenuModal= async()=>{
+        const {menu} = this.state
+        let data = ['menu_1','menu_2','menu_4']
+
+        let result = await fetch(`${remoteHost}/post/getRoleIds`,{postId:this.state.selectedRows.guid})
+
+        this.setState({menu:{...menu,checkedKeys:result,modalVisible:true}})
+    }
+
+    submitPostMenu = async()=>{
+        let {menu,selectedRows} = this.state
+        let result = await fetch(`${remoteHost}/postRole/saveUpdate`,{postId:selectedRows.guid,roleIds:menu.checkedKeys})
+        if(result.success){
+            this.setState({menu:{...menu,modalVisible:false}})
+        }
+    }
+
+    cancelPostMenu = ()=>{
+        let menu = {...this.state.menu}
+        this.setState({menu:{...menu,modalVisible:false}})
+    }
+
+    menuTreeOnCheck = (checkedKeys) =>{
+        let {menu} = this.state
+        this.setState({menu:{...menu,checkedKeys:checkedKeys}})
+    }
+
     render() {
-        const {data, loading, modalVisible, modalTitle, checkBoxState, selectedRowKeys, selectedRows} = this.state
+        const columns = [{
+            title: '角色名称',
+            dataIndex: 'rolename',
+            width: 150
+        }, {
+            title: '状态',
+            dataIndex: 'enable',
+            width: 150,
+            render: text => text == 1 ? '启用' : '禁用'
+        }, {
+            title: '创建时间',
+            dataIndex: 'addtime',
+            width: 150
+        }, {
+            title: '备注',
+            dataIndex: 'remark',
+            width: 300,
+        },{
+            title:'',
+            render:()=>(<Button onClick={this.openMenuModal}>关联菜单</Button>)
+        }];
+        const {data, loading, modalVisible, modalTitle, checkBoxState, selectedRowKeys, selectedRows,menu} = this.state
         const rowSelection = {
             selectedRowKeys,
             type: 'radio',
@@ -154,6 +189,18 @@ class Role extends React.Component {
                 this.setState({selectedRowKeys})
                 this.selectRow(selectedRows)
             }
+        }
+        const loop = (data)=>{
+            return data.map((item) => {
+                if (item.children) {
+                    return (
+                        <TreeNode key={item._id} title={item._title} dataRef={item} disableCheckbox={item.enable==0}>
+                            {loop(item.children)}
+                        </TreeNode>
+                    )
+                }
+                return <TreeNode key={item._id} title={item._title} dataRef={item} disableCheckbox={item.enable==0}/>
+            });
         }
         return (<div>
             <ButtonGrid size="large" style={{marginBottom: 10}}>
@@ -187,6 +234,25 @@ class Role extends React.Component {
                 onCancel={this.handleCancel}
                 onCreate={this.handleCreate}
             />
+            <Modal
+                title="关联角色菜单"
+                visible={menu.modalVisible}
+                onOk={this.submitPostMenu}
+                onCancel={this.cancelPostMenu}
+            >
+                {menu.tree.length > 0 ? <Tree
+                    checkable
+                    showLine={true}
+                    defaultExpandAll={true}
+                    autoExpandParent={true}
+                    checkStrictly={true}
+                    checkedKeys={menu.checkedKeys}
+                    onCheck={this.menuTreeOnCheck}
+                >
+                    {loop(menu.tree)}
+                </Tree> : <Spin spinning={true}></Spin>
+                }
+            </Modal>
         </div>)
     }
 }
