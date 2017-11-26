@@ -88,7 +88,8 @@ const treeLooper = data => {
         return <TreeNode key={item._id} title={item._title} dataRef={item}/>
     });
 }
-const remoteHost = 'http://172.16.12.187:9876'
+// const remoteHost = 'http://172.16.12.187:9876'
+const remoteHost = 'http://localhost:9876'
 module.exports ={fetch, transfer2tree,remoteHost,treeLooper}
 
 

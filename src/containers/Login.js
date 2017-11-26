@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { fetch ,remoteHost} from '../util/common'
+import  getUserData from '../actions/login'
 import {Button,Icon,Input ,Form} from 'antd'
 const FormItem =Form.Item
 
@@ -13,6 +14,8 @@ class Login extends  React.Component{
             if(err){
                 return
             }
+            let data={}
+            getUserData(data)
             router.push('/home')
         })
     }

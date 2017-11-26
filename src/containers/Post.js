@@ -67,7 +67,6 @@ class Post extends React.Component {
         transferLoading:false,
         disabled: true,
         buttonText: '新增',
-
         roleTransfer:{roleData:[],targetKeys:[],selectedKeys:[],activated:false}
 
     }
@@ -103,7 +102,6 @@ class Post extends React.Component {
                     this.selectedDept()
                 }
             }
-
         })
     }
 
@@ -178,11 +176,12 @@ class Post extends React.Component {
     }
 
     addOrEdit = () => {
+        const {mainBtn,submitBtn,cancelBtn,transferBtn} = this.state
         this.setState({
-            mainBtn: {...this.state.mainBtn, display: false},
-            submitBtn: {...this.state.submitBtn, display: true},
-            cancelBtn: {...this.state.cancelBtn, display: true},
-            transferBtn: {...this.state.transferBtn, disabled: true},
+            mainBtn: {...mainBtn, display: false},
+            submitBtn: {...submitBtn, display: true},
+            cancelBtn: {...cancelBtn, display: true},
+            transferBtn: {...transferBtn, disabled: true},
             disabled: false,
         })
     }
@@ -288,6 +287,7 @@ class Post extends React.Component {
                             <Button style={{marginBottom:10}}
                             onClick={()=>{this.setState({roleTransfer:{...roleTransfer,activated:false}})}}>岗位维护</Button>
                         <Transfer
+                            listStyle={{maxHeight:'70%'}}
                              dataSource={roleTransfer.roleData.map((item)=>{return{...item,key:item.guid.toString(),disabled:item.enable==1}})}
                             titles={['未关联', '已关联角色']}
                             targetKeys={roleTransfer.targetKeys}

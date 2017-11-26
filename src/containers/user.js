@@ -1,6 +1,6 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,DatePicker,Col,Row,Radio } from 'antd'
+import { Table ,Button, Modal, Form, Input,DatePicker,Col,Row,Radio ,TreeSelect} from 'antd'
 import { fetch ,remoteHost} from '../util/common'
 import moment from 'moment'
 const FormItem = Form.Item;
@@ -51,10 +51,20 @@ const columns = [{
     fixed: 'right'
 }];
 
+const deptTreeData = [
+    {guid: 1, deptcode: '01', deptname: '测试部门01', remark: 'beizhu01', pid: 0, _id: 'dept_1', _pid: 'dept_0', _title: '测试部门01'},
+    {guid: 2, deptcode: '02', deptname: '测试部门02', remark: 'beizhu02', pid: 1, _id: 'dept_2', _pid: 'dept_1', _title: '测试部门02'},
+    {guid: 3, deptcode: '03', deptname: '测试部门03', remark: 'beizhu03', pid: 2, _id: 'dept_3', _pid: 'dept_2', _title: '测试部门03'},
+    {guid: 4, deptcode: '04', deptname: '测试部门04', remark: 'beizhu04', pid: 0, _id: 'dept_4', _pid: 'dept_0', _title: '测试部门04'},
+    {guid: 1, postname: '岗位01', remark: '', fDeptid: 3, enable: 1, _id: 'post_1', _pid: 'dept_3', _title: '岗位01'},
+    {guid: 2, postname: '岗位02', remark: '', fDeptid: 3, enable: 1, _id: 'post_2', _pid: 'dept_3', _title: '岗位02'}
+]
 
 const CollectionCreateForm = Form.create()(
+//     changePostValue={this.changePostValue}
+// postValue={this.state.postValue}
     (props) => {
-        const { visible, onCancel, onCreate, form ,title,confirmLoading} = props;
+        const { visible, onCancel, onCreate, form ,title,confirmLoading,postTree,changePostValue,postValue} = props;
         const { getFieldDecorator } = form;
         // const  layout = {labelCol: { span: 5 ,offset: 0}}
         return (
@@ -84,19 +94,21 @@ const CollectionCreateForm = Form.create()(
                                 <Input style={{width:200,marginTop:10}}/>
                             )}
                         </FormItem>
-                        <FormItem label=" 部门 ">
-                            {getFieldDecorator('deptid', {})(
-                                <Input style={{width:200,marginTop:10}}/>
-                            )}
-                        </FormItem>
                         <FormItem label="岗位">
                             {getFieldDecorator('postid', {})(
-                                <Input style={{width:200,marginTop:10}}/>
+                                <TreeSelect
+                                    // value={postValue}
+                                    treeData={postTree}
+                                    treeDefaultExpandAll
+                                    treeDataSimpleMode={{id:'_id',pId:'_pid',rootPId:'dept_0'}}
+                                    onChange={changePostValue}
+                                    style={{width:200,marginTop:10}}
+                                />
                             )}
                         </FormItem>
                         <FormItem label="状态">
                             {getFieldDecorator('status')(
-                                <Radio.Group   style={{width:250,marginTop:10}}>
+                                <Radio.Group style={{width:250,marginTop:10}}>
                                     <Radio.Button value="0">停用</Radio.Button>
                                     <Radio.Button value="1">锁定</Radio.Button>
                                     <Radio.Button value="2">正常</Radio.Button>
@@ -124,11 +136,16 @@ class User extends Component{
         modalTitle:'',
         selectedRows:[],
         formData:{},
-        confirmLoading:false
+        postTree:[],
+        confirmLoading:false,
+        postValue:''
     }
     //组件加载完毕后触发
     componentDidMount(){
+        const postTreeData = deptTreeData.map(item=>({...item,label:item._title,value:item._id}))
+
         this.getData({...this.state.pagination})
+        this.setState({postTree:postTreeData})
     }
 
     getData = async(param) =>{
@@ -153,8 +170,19 @@ class User extends Component{
         this.setState({modalVisible: true ,modalTitle:'修改'})
         let data = {...this.state.selectedRows[0]}
         data.date = moment(data.date,'YYYY-MM-DD')
-        this.form.setFieldsValue(data)
+        this.form.setFieldsValue({...data,postid:`post_${data.postid}`})
     }
+
+    removUser = () =>{
+        Modal.confirm({
+            title: '警告',
+            content: '请确认是否需要删除该用户?',
+            onOk:  () => {
+                fetch(`${remoteHost}/user/remove`,{guid:this.state.selectedRows[0].guid})
+            }
+        })
+    }
+
     handleCancel = () => {
         this.setState({ modalVisible: false });
     }
@@ -167,7 +195,7 @@ class User extends Component{
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/user/saveUpdate`,values)
+            fetch(`${remoteHost}/user/saveUpdate`,{...values,postid:values.postid.replace('post_','')})
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });
@@ -181,9 +209,12 @@ class User extends Component{
     selectRow = (row)=>{
         this.setState({selectedRows:[...row]})
     }
+    changePostValue = (value,label)=>{
+        if(value.includes('dept')){return}
+    }
 
     render(){
-        const {data,loading,modalVisible,selectedRowKeys,pagination,modalTitle,confirmLoading} = this.state;
+        const {data,loading,modalVisible,selectedRowKeys,pagination,modalTitle,confirmLoading,postTree} = this.state;
         const rowSelection = {
             selectedRowKeys,
             type : 'radio',
@@ -197,6 +228,7 @@ class User extends Component{
             <div style={{ marginBottom: 16 }}>
                 <Button type="primary"  onClick={this.addUser}>新增</Button>
                 <Button type="primary" style={{marginLeft:10}} onClick={this.editUser} disabled={this.state.selectedRows.length==0}>修改</Button>
+                <Button type="danger" style={{marginLeft:10}} onClick={this.removUser} disabled={this.state.selectedRows.length==0}>删除</Button>
             </div>
             <Table
                 rowKey="guid"
@@ -218,6 +250,9 @@ class User extends Component{
                 onCancel={this.handleCancel}
                 onCreate={this.handleCreate}
                 confirmLoading={confirmLoading}
+                postTree={postTree}
+                changePostValue={this.changePostValue}
+                postValue={this.state.postValue}
             />
         </div>
         )

@@ -4,8 +4,10 @@ import { routerReducer } from 'react-router-redux' // 将routerReducer一起合�
 import update from './count' // 引入update这个reducer
 import app from './app.js' // 引入update这个reducer
 import regicodeMgmt from './regicodeMgmt.js' // 引入update这个reducer
+import userData from './login.js' //
 
 export default combineReducers({
+    userData,
     regicodeMgmt,
     app,
     update,

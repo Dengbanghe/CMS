@@ -8,12 +8,14 @@ const SubMenu = Menu.SubMenu;
 
  class App extends Component {
     render() {
-        const {breadcrumbList,changeBreadcrumb} = this.props
+        const {breadcrumbList,changeBreadcrumb,userData} = this.props
         return(
         <div style={{width:'100%',height:'100%'}}>
         <div className="ant-layout-aside">
             <aside className="ant-layout-sider" >
                 <div className="ant-layout-logo"></div>
+
+                {/*{userData.menus.map()}*/}
                 <Menu mode="inline" theme="dark"
                       defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}
                       onClick={clickMenu}
@@ -77,5 +79,10 @@ const getBreadcrumbList = state => {
         breadcrumbList: state.app.breadcrumbList
     }
 }
+const getUserData = (state) =>{
+     return {
+         userData:state.userData
+     }
+}
 
-module.exports =  connect(getBreadcrumbList,{changeBreadcrumb})(App)
+module.exports =  connect({getBreadcrumbList,getUserData},{changeBreadcrumb})(App)
