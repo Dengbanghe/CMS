@@ -1,21 +1,21 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { fetch ,remoteHost} from '../util/common'
-import  getUserData from '../actions/login'
 import {Button,Icon,Input ,Form} from 'antd'
 const FormItem =Form.Item
+import {setUserData} from '../actions/loginAction'
 
 class Login extends  React.Component{
-
     loginSubmit = () =>{
+        const {setUserData} = this.props
         const {router} = this.props
         const form = this.props.form
         form.validateFields(async(err,values)=>{
             if(err){
                 return
             }
-            let data={}
-            getUserData(data)
+            let menus=[{},{}]
+            setUserData(menus)
             router.push('/home')
         })
     }
@@ -58,4 +58,4 @@ class Login extends  React.Component{
 
 }
 const LoginForm = Form.create()(Login);
-module.exports = connect()(LoginForm)
+module.exports = connect(null,{setUserData})(LoginForm)

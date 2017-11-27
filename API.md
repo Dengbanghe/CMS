@@ -289,6 +289,33 @@ res:{
  }
  ```
  
+ ## <span id="login">login</span>
+ 
+ 登录 **/login**
+ 
+```
+req:{
+    account:'',
+    password:''
+}
+
+res:{
+    token:'',
+    menus:[],
+    user:{}
+}
+```
+
+登出 **/logout**
+```
+req:{
+    account
+}
+res:{
+    success:true,
+    message:''
+}
+```
  
  
 

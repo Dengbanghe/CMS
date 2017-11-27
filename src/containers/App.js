@@ -8,18 +8,17 @@ const SubMenu = Menu.SubMenu;
 
  class App extends Component {
     render() {
-        const {breadcrumbList,changeBreadcrumb,userData} = this.props
+        const {menus,changeBreadcrumb} = this.props
         return(
         <div style={{width:'100%',height:'100%'}}>
         <div className="ant-layout-aside">
             <aside className="ant-layout-sider" >
                 <div className="ant-layout-logo"></div>
-
-                {/*{userData.menus.map()}*/}
                 <Menu mode="inline" theme="dark"
                       defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}
                       onClick={clickMenu}
                       onSelect={selectMenu}>
+                    {console.log(menus)}
                     <Menu.Item key="sub1" ><Link to="/index" activeStyle={{textDecoration:'none'}} ><Icon type="user"/>我的主页</Link></Menu.Item>
                     <SubMenu key="sub2" title={<span><Icon type="laptop" />基础数据管理</span>}>
                         <Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>
@@ -74,15 +73,10 @@ const clickMenu=({item,key,keyPath})=>{
     // console.log(key);
     // console.log(keyPath);
  }
-const getBreadcrumbList = state => {
+const getData = state => {
     return {
-        breadcrumbList: state.app.breadcrumbList
+        menus:state.userData.menus
     }
 }
-const getUserData = (state) =>{
-     return {
-         userData:state.userData
-     }
-}
 
-module.exports =  connect({getBreadcrumbList,getUserData},{changeBreadcrumb})(App)
+module.exports =  connect(getData,{changeBreadcrumb})(App)

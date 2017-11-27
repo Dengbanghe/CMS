@@ -1,10 +1,16 @@
-const initState={
-    token:'',
+const initState = {
     menus:[]
 }
-export default(state = initState,action)=>{
+
+export default (state = initState, action)=>{
+    console.log(`action.type`)
+    console.log(action.type)
+    console.log(action.json)
     switch (action.type){
-        case 'GET_USER_DATA':
-            return Object.assign({},state,{...action.json})
+        case 'SET_USER_DATA':
+            return Object.assign({},state,{menus:action.json})
+            break
+        default:
+            return state
     }
 }
