@@ -77,9 +77,11 @@ class Post extends React.Component {
 
     getData = async (param) => {
 
-        const data = await fetch(`${remoteHost}/post/tree`, param)
+        const data = await fetch(`${remoteHost}/post/pageData`, param)
         let roleTransfer = this.state.roleTransfer
         let treeData = transfer2tree(data.tree, {rootId: 'dept_0'})
+
+        console.log(treeData)
         this.setState({data: [...treeData],
             roleTransfer:{...roleTransfer,roleData:data.roles}})
     }
@@ -92,15 +94,15 @@ class Post extends React.Component {
         const form = this.form
         form.validateFields(async (err, values) => {
             values = {...values, enable: values.enable == true ? '1' : '0'}
-            console.log(values)
             let result = await fetch(`${remoteHost}/post/saveUpdate`, values)
             if (result.success) {
                 if (this.state.selectedNode._id.includes('post')) {
                     this.selectedPost()
-                    this.getData()
+
                 } else {
                     this.selectedDept()
                 }
+                this.getData()
             }
         })
     }
@@ -165,8 +167,8 @@ class Post extends React.Component {
         this.setState({selectedNode: nodeData})
 
         form.resetFields();
-
-        if (selectedKeys[0].includes('dept') && (nodeData.children.length == 0 || nodeData.children[0]._id.includes('post'))) {
+//&& (nodeData.children != null || nodeData.children[0]._id.includes('post'))
+        if (selectedKeys[0].includes('dept') ) {
             this.selectedDept(nodeData)
         } else if (selectedKeys[0].includes('post')) {
             this.selectedPost(nodeData)
@@ -220,6 +222,7 @@ class Post extends React.Component {
         let {roleTransfer,selectedNode} =this.state
         if(selectedNode.guid){
             let result = await fetch(`${remoteHost}/post/getRoleIds`,{postId:selectedNode.guid})
+            result=result.map(item=>{return item+''})
             this.setState({roleTransfer:{...roleTransfer,targetKeys:result,activated:true}})
         }
         // this.setState({roleTransfer:{...roleTransfer,activated:true}})

@@ -6,7 +6,7 @@ const TreeNode = Tree.TreeNode
  *  通用请求方法 //todo 需补完token验证
  *  若返回 {success:{Boolean},message:{String}}格式数据 会自动调用 message.success or error
  *  确保使用 async await
- * @param url
+ * @param urlwebpac
  *      请求地址 {String}
  * @param data
  *      请求参数 将被转换为formData {Object}
@@ -20,9 +20,12 @@ const fetch=async(url,data,method='post')=>{
         if(data[key]==undefined)continue
         formData.append(key,data[key])
     }
-    let res,result={}
+    let res,result={},headers=new Headers()
+    if(!url.includes('/login')){
+        headers.append('token',localStorage.getItem('token'))
+    }
     try {
-        res = await isofetch(url, {method: method, body: formData})
+        res = await isofetch(url, {method: method, body: formData,headers:headers})
         if (res.status === 200) {
             result = await res.json();
             if(result.success){
@@ -32,6 +35,8 @@ const fetch=async(url,data,method='post')=>{
             message.error(`请求的资源 ${url} 不存在 请联系管理员`)
         }else if(res.status === 500){
             message.error(result.message)
+        }else if(res.status === 403){
+            window.location.href="/login"
         }
     }catch(e){
         message.error(e)
@@ -88,8 +93,8 @@ const treeLooper = data => {
         return <TreeNode key={item._id} title={item._title} dataRef={item}/>
     });
 }
-// const remoteHost = 'http://172.16.12.187:9876'
-const remoteHost = 'http://localhost:9876'
+const remoteHost = 'http://172.16.12.133:1111'
+// const remoteHost = 'http://localhost:9876'
 module.exports ={fetch, transfer2tree,remoteHost,treeLooper}
 
 

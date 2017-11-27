@@ -9,6 +9,20 @@ const SubMenu = Menu.SubMenu;
  class App extends Component {
     render() {
         const {menus,changeBreadcrumb} = this.props
+        const loopMenu = (menus)=>{
+            return menus.map((item)=>{
+                if (item.children) {
+                    return (
+                        <SubMenu key={item._id} title={item.menuname} >
+                            {loopMenu(item.children)}
+                        </SubMenu>
+                    )
+                }
+                return (<Menu.Item key={item._id} title={item.menuname} >
+                    <Link to={item.menuurl}>{item.menuname}</Link>
+                </Menu.Item>)
+            })
+        }
         return(
         <div style={{width:'100%',height:'100%'}}>
         <div className="ant-layout-aside">
@@ -18,21 +32,21 @@ const SubMenu = Menu.SubMenu;
                       defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}
                       onClick={clickMenu}
                       onSelect={selectMenu}>
-                    {console.log(menus)}
                     <Menu.Item key="sub1" ><Link to="/index" activeStyle={{textDecoration:'none'}} ><Icon type="user"/>我的主页</Link></Menu.Item>
                     <SubMenu key="sub2" title={<span><Icon type="laptop" />基础数据管理</span>}>
-                        <Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>
-                        <Menu.Item key="6">金融机构</Menu.Item>
-                        <Menu.Item key="7">贷款机构</Menu.Item>
-                        <Menu.Item key="8">贷款类型</Menu.Item>
+                    <Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>
+                    <Menu.Item key="6">金融机构</Menu.Item>
+                    <Menu.Item key="7">贷款机构</Menu.Item>
+                    <Menu.Item key="8">贷款类型</Menu.Item>
                     </SubMenu>
                     <SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>
-                        <Menu.Item key="9"><Link to="/dept">部门管理</Link></Menu.Item>
-                        <Menu.Item key="10"><Link to="/post">岗位管理</Link></Menu.Item>
-                        <Menu.Item key="11"><Link to="/role">角色管理</Link></Menu.Item>
-                        <Menu.Item key="12"><Link to="/menu">菜单管理</Link></Menu.Item>
-                        <Menu.Item key="13"><Link to="/user">用户管理</Link></Menu.Item>
+                    <Menu.Item key="9"><Link to="/dept">部门管理</Link></Menu.Item>
+                    <Menu.Item key="10"><Link to="/post">岗位管理</Link></Menu.Item>
+                    <Menu.Item key="11"><Link to="/role">角色管理</Link></Menu.Item>
+                    <Menu.Item key="12"><Link to="/menu">菜单管理</Link></Menu.Item>
+                    <Menu.Item key="13"><Link to="/user">用户管理</Link></Menu.Item>
                     </SubMenu>
+                    {/*{loopMenu(menus)}*/}
                 </Menu>
             </aside>
             <div className="ant-layout-main">

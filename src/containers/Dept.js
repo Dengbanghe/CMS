@@ -14,6 +14,9 @@ class DeptForm extends Component {
                 {getFieldDecorator('guid')(
                     <Input type="hidden"/>
                 )}
+                {getFieldDecorator('pDeptcode', {initialValue: 0})(
+                <Input type="hidden"/>
+                )}
                 {getFieldDecorator('pid', {initialValue: 0})(
                     <Input type="hidden"/>
                 )}
@@ -110,7 +113,7 @@ class Dept extends Component {
                 return;
             }
             this.setState({confirmLoading: true});
-            fetch(`${remoteHost}/dept/saveUpdat`, values)
+            await fetch(`${remoteHost}/dept/saveUpdate`, values)
             this.getData()
             if (this.state.isAdding) {
                 form.setFieldsValue(this.state.formData)

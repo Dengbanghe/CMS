@@ -99,7 +99,7 @@ class Role extends React.Component {
             content: '请确认是否需要删除该角色?',
             onOk: async () => {
                 let result = await fetch(`${remoteHost}/role/remove`, {guid: this.state.selectedRows[0].guid})
-
+                this.getData()
             }
         })
     }
@@ -114,7 +114,7 @@ class Role extends React.Component {
             checkBoxState: e.target.checked
         });
     }
-    handleCreate = () => {
+    handleCreate = async() => {
         const form = this.form;
         form.validateFields(async (err, values) => {
             // values.date = values.date.format("YYYY-MM-DD")
@@ -122,8 +122,9 @@ class Role extends React.Component {
                 return;
             }
             this.setState({confirmLoading: true});
-            fetch(`${remoteHost}/user/saveUpdate`, values)
+            await fetch(`${remoteHost}/role/saveUpdate`, {...values,enable:values.enable==true?1:0})
             form.resetFields();
+            this.getData()
             this.setState({modalVisible: false, confirmLoading: false});
         });
     }
@@ -136,14 +137,18 @@ class Role extends React.Component {
         const {menu} = this.state
         let data = ['menu_1','menu_2','menu_4']
 
-        let result = await fetch(`${remoteHost}/post/getRoleIds`,{postId:this.state.selectedRows.guid})
-
+        let result = await fetch(`${remoteHost}/menu/getMenuIds`,{roleId:this.state.selectedRows[0].guid})
+        result = result.map(item=>{
+            return `menu_${item}`
+        })
         this.setState({menu:{...menu,checkedKeys:result,modalVisible:true}})
     }
 
     submitPostMenu = async()=>{
         let {menu,selectedRows} = this.state
-        let result = await fetch(`${remoteHost}/postRole/saveUpdate`,{postId:selectedRows.guid,roleIds:menu.checkedKeys})
+        console.log(menu.checkedKeys)
+        console.log(menu.checkedKeys.checked.join(',').replace(/menu_/g,""))
+        let result = await fetch(`${remoteHost}/roleMenu/saveUpdate`,{roleId:selectedRows[0].guid,menuIds:menu.checkedKeys.checked.join(',').replace(/menu_/g,"")})
         if(result.success){
             this.setState({menu:{...menu,modalVisible:false}})
         }
@@ -155,6 +160,7 @@ class Role extends React.Component {
     }
 
     menuTreeOnCheck = (checkedKeys) =>{
+        console.log(checkedKeys)
         let {menu} = this.state
         this.setState({menu:{...menu,checkedKeys:checkedKeys}})
     }
@@ -179,7 +185,7 @@ class Role extends React.Component {
             width: 300,
         },{
             title:'',
-            render:()=>(<Button onClick={this.openMenuModal}>关联菜单</Button>)
+            render:(title,row)=>(<Button onClick={this.openMenuModal}>关联菜单</Button>)
         }];
         const {data, loading, modalVisible, modalTitle, checkBoxState, selectedRowKeys, selectedRows,menu} = this.state
         const rowSelection = {

@@ -3,7 +3,7 @@
 var path = require('path');
 var webpack = require('webpack');
 module.exports = {
-    // devtool: 'source-map', // 如果出错，可以知道源文件的位置 -- 这个会使得编译后的js文件变大
+    devtool: 'source-map', // 如果出错，可以知道源文件的位置 -- 这个会使得编译后的js文件变大
     // entry: './index.js',
     entry: {
         bundle: './index.js',

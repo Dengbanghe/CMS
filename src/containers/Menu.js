@@ -1,10 +1,9 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import {Button, Form, Input, Tree, Spin, Row, Col,Checkbox,Select} from 'antd'
+import {Button, Form, Input, Tree, Spin, Row, Col,Checkbox} from 'antd'
 import {fetch, transfer2tree,remoteHost,treeLooper} from '../util/common'
 const FormItem = Form.Item;
 const TreeNode = Tree.TreeNode
-const Option = Select.Option
 class MenuForm extends Component {
     render() {
         const {getFieldDecorator} = this.props.form,
@@ -22,17 +21,6 @@ class MenuForm extends Component {
                         rules: [{required: true,message:'编码不能为空'}],
                     })(
                         <Input disabled={editing}/>
-                    )}
-                </FormItem>
-                <FormItem label="菜单类型" >
-                    {getFieldDecorator('menutype', {
-                        defaultValue:'0',
-                        rules: [{required: true,message:'编码不能为空'}],
-                    })(
-                        <Select disabled={editing}>
-                            <Option value="0">菜单</Option>
-                            <Option value="1">按钮</Option>
-                        </Select>
                     )}
                 </FormItem>
                 <FormItem label="URL">
@@ -54,12 +42,6 @@ class MenuForm extends Component {
                 <FormItem label="排序">
                     {getFieldDecorator('sort')(
                         <Input disabled={editing}/>
-                    )}
-                </FormItem>
-
-                <FormItem label="备注">
-                    {getFieldDecorator('remark')(
-                        <Input type="textarea" disabled={editing}/>
                     )}
                 </FormItem>
             </Form>
@@ -97,7 +79,6 @@ class Menu extends Component {
         if (selectedNodes[0]) {
             nodeData = selectedNodes[0].props.dataRef
         }
-        console.log(nodeData)
         this.form.resetFields();
         this.form.setFieldsValue(nodeData)
         this.setState({isEditing: false, isAdding: false,checkBoxState: nodeData.enable==1, formData:{...nodeData,enable:nodeData.enable==1}})
@@ -125,7 +106,7 @@ class Menu extends Component {
                 return;
             }
             this.setState({confirmLoading: true});
-            fetch(`${remoteHost}/dept/saveUpdat`, {...values,enable:values.enable==true?1:0})
+            fetch(`${remoteHost}/menu/saveUpdate`, {...values,enable:values.enable==true?1:0})
             this.getData()
             if (this.state.isAdding) {
                 form.setFieldsValue(this.state.formData)
@@ -178,7 +159,7 @@ class Menu extends Component {
             <div>
                 <Row>
                     <Col span={8}>
-                        <Button onClick={()=>{this.setState({drap:!drap})}}/>
+                        {/*<Button onClick={()=>{this.setState({drap:!drap})}}/>*/}
                         {data.length > 0 ? <Tree
                             draggable={drap}
                             onDragEnd={this.onDragEnd}

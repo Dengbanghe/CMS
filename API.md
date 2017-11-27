@@ -1,12 +1,14 @@
 # API
-1. 基础数据
+1. 用户模块
     1. [dept 部门](#dept)
     2. [user 用户](#user)
     3. [post 岗位](#post)
     4. [menu 菜单](#menu)
     5. [role 角色](#role)
+    6. [login 登录](#login)
 
-
+2.基础数据
+    1. [region 行政区划](#region)
 ##  <span id='dept'>dept</span>
 获取部门树 **/dept/tree**
 
@@ -301,8 +303,27 @@ req:{
 
 res:{
     token:'',
-    menus:[],
-    user:{}
+    menus:[
+        {guid: 1, menuname: '我的主页', menuurl: '/index', pGuid: '0',enbale:1,  _id: 'menu_1', _pid: 'menu_0', _title: '我的主页'},
+        {guid: 2, menuname: '基础数据管理', menuurl: '', pGuid: '0',enbale:1,  _id: 'menu_2', _pid: 'menu_0', _title: '基础数据管理'},
+        {guid: 3, menuname: '行政区划管理', menuurl: '/region', pGuid: '2',enbale:1,  _id: 'menu_3', _pid: 'menu_2', _title: '行政区划管理'},
+        {guid: 4, menuname: '金融机构', menuurl: '', pGuid: '2',enbale:1,  _id: 'menu_4', _pid: 'menu_2', _title: '金融机构'},
+        {guid: 5, menuname: '贷款机构', menuurl: '', pGuid: '2',enbale:1,  _id: 'menu_5', _pid: 'menu_2', _title: '贷款机构'},
+        {guid: 6, menuname: '贷款类型', menuurl: '', pGuid: '2',enbale:1,  _id: 'menu_6', _pid: 'menu_2', _title: '贷款类型'},
+        {guid: 7, menuname: '权限管理', menuurl: '', pGuid: '0',enbale:1,  _id: 'menu_7', _pid: 'menu_0', _title: '权限管理'},
+        {guid: 8, menuname: '部门管理', menuurl: '/index', pGuid: '7',enbale:1,  _id: 'menu_8', _pid: 'menu_7', _title: '部门管理'},
+        {guid: 9, menuname: '岗位管理', menuurl: '/index', pGuid: '7',enbale:1,  _id: 'menu_9', _pid: 'menu_7', _title: '岗位管理'},
+        {guid: 10, menuname: '角色管理', menuurl: '/index', pGuid: '7',enbale:1,  _id: 'menu_10', _pid: 'menu_7', _title: '角色管理'},
+        {guid: 11, menuname: '菜单管理', menuurl: '/index', pGuid: '7',enbale:1,  _id: 'menu_11', _pid: 'menu_7', _title: '菜单管理'},
+        {guid: 12, menuname: '用户管理', menuurl: '/index', pGuid: '7',enbale:1,  _id: 'menu_12', _pid: 'menu_7', _title: '用户管理'},
+    ],
+    user:{
+        guid:1,
+        nickname:'测试用户01',
+        account:'测试帐号01',
+        deptid:1,
+        deptname:'部门01'
+    }
 }
 ```
 
@@ -318,4 +339,7 @@ res:{
 ```
  
  
+## <span>region</span>
+新增新增区划 **/region/saveUpdate**
+
 

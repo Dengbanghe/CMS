@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { fetch ,remoteHost} from '../util/common'
+import { fetch ,remoteHost,transfer2tree} from '../util/common'
 import {Button,Icon,Input ,Form} from 'antd'
 const FormItem =Form.Item
 import {setUserData} from '../actions/loginAction'
@@ -14,26 +14,27 @@ class Login extends  React.Component{
             if(err){
                 return
             }
-            let menus=[{},{}]
-            setUserData(menus)
+            // let result =  await fetch(`${remoteHost}/login`,{values})
+            // localStorage.setItem('token',result.token)
+            //菜单交由redux管理
+            // setUserData(transfer2tree(result.menus,{rootId:'menu_0'}))
             router.push('/home')
         })
     }
     handleSubmit = (e) =>{
         e.preventDefault()
-        console.log(this.props.form)
     }
     render(){
         const { getFieldDecorator } = this.props.form;
         return (
             <div style={{ width: 350,
-                    height: 340,
+                height: 340,
                 position: 'absolute',
                 left:'50%',
                 top:'50%',
                 marginLeft: -175,
                 marginTop: -170}}>
-                <Form onsubmit={this.handleSubmit} >
+                <Form onSubmit={this.handleSubmit} >
                     <FormItem>
                         {getFieldDecorator('account', {
                             rules: [{required: true, message: '请输入用户名'}]

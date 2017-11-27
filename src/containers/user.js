@@ -82,6 +82,9 @@ const CollectionCreateForm = Form.create()(
                         {getFieldDecorator('guid', )(
                             <Input type="hidden" />
                         )}
+                        {getFieldDecorator('fDeptid', )(
+                            <Input type="hidden" />
+                        )}
                         <FormItem label="帐号" >
                             {getFieldDecorator('account', {
                                 rules: [{ required: true, message: '请输入用户名' }],
@@ -95,7 +98,7 @@ const CollectionCreateForm = Form.create()(
                             )}
                         </FormItem>
                         <FormItem label="岗位">
-                            {getFieldDecorator('postid', {})(
+                            {getFieldDecorator('fPostid', {})(
                                 <TreeSelect
                                     // value={postValue}
                                     treeData={postTree}
@@ -141,16 +144,19 @@ class User extends Component{
         postValue:''
     }
     //组件加载完毕后触发
-    componentDidMount(){
-        const postTreeData = deptTreeData.map(item=>({...item,label:item._title,value:item._id}))
+    async componentDidMount(){
 
-        this.getData({...this.state.pagination})
-        this.setState({postTree:postTreeData})
+        let postTreeData =await fetch(`${remoteHost}/post/tree`,{})
+        console.log(postTreeData)
+        postTreeData = postTreeData.map(item=>({...item,label:item._title,value:item._id}))
+        console.log(postTreeData)
+        this.getData({...this.state.pagination,postTree:postTreeData})
     }
 
     getData = async(param) =>{
         this.setState({loading:true})
         let data = await fetch(`${remoteHost}/user/page`,param)
+
         this.setState({data:data.data,pagination:data.page ,loading:false})
     }
     //分页 排序 过滤 触发回调方法
@@ -170,7 +176,7 @@ class User extends Component{
         this.setState({modalVisible: true ,modalTitle:'修改'})
         let data = {...this.state.selectedRows[0]}
         data.date = moment(data.date,'YYYY-MM-DD')
-        this.form.setFieldsValue({...data,postid:`post_${data.postid}`})
+        this.form.setFieldsValue({...data,fPostid:`post_${data.fPostid}`})
     }
 
     removUser = () =>{
@@ -195,7 +201,7 @@ class User extends Component{
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/user/saveUpdate`,{...values,postid:values.postid.replace('post_','')})
+            fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_','')})
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });
@@ -209,7 +215,9 @@ class User extends Component{
     selectRow = (row)=>{
         this.setState({selectedRows:[...row]})
     }
-    changePostValue = (value,label)=>{
+    changePostValue = (value,label,extra)=>{
+        console.log(extra)
+        this.form.setFieldsValue({fDeptid:extra.triggerNode.props.fDeptid})
         if(value.includes('dept')){return}
     }
 
