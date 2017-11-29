@@ -7,8 +7,13 @@
     5. [role 角色](#role)
     6. [login 登录](#login)
 
-2.基础数据
+2. 基础数据
     1. [region 行政区划](#region)
+    
+3. 核心业务
+    1. [apply 贷款申请](#apply)
+4. 通用方法
+    1. [download 下载](#download)
 ##  <span id='dept'>dept</span>
 获取部门树 **/dept/tree**
 
@@ -339,7 +344,192 @@ res:{
 ```
  
  
-## <span>region</span>
+## <span id="region">region</span>
 新增新增区划 **/region/saveUpdate**
+
+
+
+
+## <span id="apply">apply</span>
+
+获取贷款申请数据 **/loanapply/page**
+```
+req:{
+    pageSize:20,
+    current:1,
+    order:'nickname',
+    orderby:'desc'
+    step:'',
+    ……额外的查询属性
+}
+res:{
+    page:{
+        pageSize:20,
+        current:1,
+        total:200
+    },
+    data:[{
+        guid: 1,
+        applyno: '0100',
+        applytel: '13988888888',
+        applyname: '测试用户',
+        applyidcard: '33010219990101001X',
+        loanttypename: '非上市银行股权质押贷款',
+        repaymethodname: '本息同额',
+        loanterm: 24,
+        applystatus: 0,
+        applydate: '2017-12-01',
+        applymoney: '1000000',
+        applytime: '2017-11-28 12:03:46',
+        detail: [{
+            bankinfoName: '测试银行',
+            amount: 50000,
+            stocktype: 3,
+            hascertificate: 1,
+            ensplit: 0,
+            certificatePic1: {
+                fileNo:''
+                fileType:''
+                fileName:''
+                fileRealName:'./test.jpg'
+            },
+            certificatePic2: {
+                fileNo:''
+                fileType:''
+                fileName:''
+                fileRealName:'./test.jpg'
+            }
+        }]
+    },{
+        guid: 2,
+        applyno: '0101',
+        applytel: '13988888888',
+        applyname: '测试用户1',
+        applyidcard: '33010219990101001X',
+        loanttypename: '非上市银行股权质押贷款',
+        repaymethodname: '本息同额',
+        loanterm: 36,
+        applystatus: 0,
+        applydate: '2017-12-01',
+        applymoney: '8000',
+        applytime: '2017-11-28 12:03:46',
+        detail: [{
+            bankinfoName: '测试银行',
+            amount: 50000,
+            stocktype: 3,
+            hascertificate: 1,
+            ensplit: 0,
+            certificatePic1: {
+                fileNo:''
+                fileType:''
+                fileName:''
+                fileRealName:'./test.jpg'
+            },
+            certificatePic2: {
+                fileNo:''
+                fileType:''
+                fileName:''
+                fileRealName:'./test.jpg'
+            }
+        }]
+    }
+]}
+```
+
+根据流程阶段获取文件列表 **loanapply/getFilesByStep**
+```
+req:{
+    guid:1,
+    step:'auditing'
+}
+res:[{
+    fileNo:''
+    fileType:''
+    fileName:'',
+    ……
+},{
+    fileNo:''
+    fileType:''
+    fileName:'',
+    ……
+}]
+```
+根据流程阶段 详细信息以及文件 **loanapply/getStepDetail**
+```
+req:{
+    guid:1,
+    step:'auditing'
+}
+
+res:{
+    files:[{
+       fileNo:''
+       fileType:''
+       fileName:'',
+       ……
+   },{
+       fileNo:''
+       fileType:''
+       fileName:'',
+       ……
+   }],
+    stepDetail:{
+        
+    }
+}
+```
+
+上传流程附件 **loanapply/upload**
+```
+req:{
+    guid:1,
+    step:'auditing',
+    file
+}
+
+res:{
+    success:true,
+    message:''
+    fileNo''
+}
+```
+
+
+删除流程中的文件附件 **loanapply/removeFile**
+```
+req:{
+     guid:1,
+     step:'auditing',
+     fileNo:''
+}
+
+res:{
+    success:true,
+}
+```
+
+流程提交 **/loanapply/step**
+```
+req:{
+    guid:1,
+    status:'', （0已申请，10初审成功，11初审失败，20用户确认，21用户确认失败，30签约成功，31签约失败，40完成质押，41质押失败，99放款成功）
+    remark:'''
+}
+res:{
+    success:true,
+    message:''
+}
+```
+## <span id="download">download</span>
+下载文件 **/download**
+```
+req:{
+     fileNo:''
+}
+
+res:{
+    
+}
+```
 
 

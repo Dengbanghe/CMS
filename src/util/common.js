@@ -34,6 +34,7 @@ const fetch=async(url,data,method='post')=>{
         }else if(res.status === 404){
             message.error(`请求的资源 ${url} 不存在 请联系管理员`)
         }else if(res.status === 500){
+            result = await res.json();
             message.error(result.message)
         }else if(res.status === 403){
             window.location.href="/login"
@@ -93,9 +94,25 @@ const treeLooper = data => {
         return <TreeNode key={item._id} title={item._title} dataRef={item}/>
     });
 }
+/**
+ * 千分位格式化
+ * @param money
+ * @returns {string}
+ */
+const toThousands =(money)=> {
+    let num = (money || 0).toString(),
+        result = ''
+    while (num.length > 3) {
+        result = `,${num.slice(-3)}${result}`
+        num = num.slice(0, num.length - 3);
+    }
+    if (num) { result = `${num}${result}`; }
+    return result;
+}
+
 const remoteHost = 'http://172.16.12.133:1111'
 // const remoteHost = 'http://localhost:9876'
-module.exports ={fetch, transfer2tree,remoteHost,treeLooper}
+module.exports ={fetch, transfer2tree,remoteHost,treeLooper,toThousands}
 
 
 // var data1 = [{guid: "1", deptcode: '01', deptname: '测试部门01', remark: 'beizhu01', pid: 0, _id: 1, _pid: 0, _title: '测试部门01'},

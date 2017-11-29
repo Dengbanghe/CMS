@@ -14,10 +14,10 @@ class Login extends  React.Component{
             if(err){
                 return
             }
-            // let result =  await fetch(`${remoteHost}/login`,{values})
-            // localStorage.setItem('token',result.token)
-            //菜单交由redux管理
-            // setUserData(transfer2tree(result.menus,{rootId:'menu_0'}))
+            let result =  await fetch(`${remoteHost}/login`,values)
+            localStorage.setItem('token',result.token)
+            // 菜单交由redux管理
+            setUserData(transfer2tree(result.menus,{rootId:'menu_0'}))
             router.push('/home')
         })
     }

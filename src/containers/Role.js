@@ -133,11 +133,11 @@ class Role extends React.Component {
         this.selectRow([record])
     }
 
-    openMenuModal= async()=>{
+    openMenuModal= async(guid)=>{
         const {menu} = this.state
         let data = ['menu_1','menu_2','menu_4']
 
-        let result = await fetch(`${remoteHost}/menu/getMenuIds`,{roleId:this.state.selectedRows[0].guid})
+        let result = await fetch(`${remoteHost}/menu/getMenuIds`,{roleId:guid})
         result = result.map(item=>{
             return `menu_${item}`
         })
@@ -185,7 +185,7 @@ class Role extends React.Component {
             width: 300,
         },{
             title:'',
-            render:(title,row)=>(<Button onClick={this.openMenuModal}>关联菜单</Button>)
+            render:(title,row)=>(<Button onClick={()=>{this.openMenuModal(row.guid)}}>关联菜单</Button>)
         }];
         const {data, loading, modalVisible, modalTitle, checkBoxState, selectedRowKeys, selectedRows,menu} = this.state
         const rowSelection = {

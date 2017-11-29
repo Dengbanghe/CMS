@@ -1,6 +1,6 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,DatePicker,Col,Row,Radio ,TreeSelect} from 'antd'
+import { Table ,Button, Modal, Form, Input,Radio ,TreeSelect} from 'antd'
 import { fetch ,remoteHost} from '../util/common'
 import moment from 'moment'
 const FormItem = Form.Item;
@@ -51,22 +51,10 @@ const columns = [{
     fixed: 'right'
 }];
 
-const deptTreeData = [
-    {guid: 1, deptcode: '01', deptname: '测试部门01', remark: 'beizhu01', pid: 0, _id: 'dept_1', _pid: 'dept_0', _title: '测试部门01'},
-    {guid: 2, deptcode: '02', deptname: '测试部门02', remark: 'beizhu02', pid: 1, _id: 'dept_2', _pid: 'dept_1', _title: '测试部门02'},
-    {guid: 3, deptcode: '03', deptname: '测试部门03', remark: 'beizhu03', pid: 2, _id: 'dept_3', _pid: 'dept_2', _title: '测试部门03'},
-    {guid: 4, deptcode: '04', deptname: '测试部门04', remark: 'beizhu04', pid: 0, _id: 'dept_4', _pid: 'dept_0', _title: '测试部门04'},
-    {guid: 1, postname: '岗位01', remark: '', fDeptid: 3, enable: 1, _id: 'post_1', _pid: 'dept_3', _title: '岗位01'},
-    {guid: 2, postname: '岗位02', remark: '', fDeptid: 3, enable: 1, _id: 'post_2', _pid: 'dept_3', _title: '岗位02'}
-]
-
 const CollectionCreateForm = Form.create()(
-//     changePostValue={this.changePostValue}
-// postValue={this.state.postValue}
     (props) => {
         const { visible, onCancel, onCreate, form ,title,confirmLoading,postTree,changePostValue,postValue} = props;
         const { getFieldDecorator } = form;
-        // const  layout = {labelCol: { span: 5 ,offset: 0}}
         return (
             <Modal
                 visible={visible}
@@ -145,18 +133,17 @@ class User extends Component{
     }
     //组件加载完毕后触发
     async componentDidMount(){
-
-        let postTreeData =await fetch(`${remoteHost}/post/tree`,{})
+        let postTreeData =await fetch(`${remoteHost}/post/tree`)
         console.log(postTreeData)
-        postTreeData = postTreeData.map(item=>({...item,label:item._title,value:item._id}))
+        postTreeData = postTreeData.map(item=>{return {...item,label:item._title,value:item._id}})
         console.log(postTreeData)
-        this.getData({...this.state.pagination,postTree:postTreeData})
+        this.setState({postTree:postTreeData})
+        this.getData({...this.state.pagination})
     }
 
     getData = async(param) =>{
         this.setState({loading:true})
         let data = await fetch(`${remoteHost}/user/page`,param)
-
         this.setState({data:data.data,pagination:data.page ,loading:false})
     }
     //分页 排序 过滤 触发回调方法

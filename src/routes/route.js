@@ -83,6 +83,20 @@ export default [{
                 }, 'User')
             }
         },{
+            path: '/loanApply',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/loanApply'))
+                }, 'loanApply')
+            }
+        },{
+            path: '/loanAssess',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/loanAssess'))
+                }, 'loanAssess')
+            }
+        },{
             path: '/404',
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {
