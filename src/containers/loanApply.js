@@ -4,7 +4,22 @@ import {Table, Button, Modal, Form, Input, Radio, TreeSelect, Popover, Upload, I
 import {fetch, remoteHost, toThousands} from '../util/common'
 import moment from 'moment'
 import './masterTable.css'
-
+const FormItem = Form.Item
+const CollectionCreateForm = Form.create()(
+    (props) => {
+        const form =props.form
+        const getFieldDecorator = form.getFieldDecorator
+        return(
+            <Form>
+                <FormItem>
+                    {getFieldDecorator('guid',{})(
+                        <Input type="textarea"/>
+                    )}
+                </FormItem>
+            </Form>
+        )
+    }
+)
 class LoanApply extends Component {
     state = {
         data: [],
@@ -17,11 +32,11 @@ class LoanApply extends Component {
         confirmLoading: false,
         postValue: '',
         subTableData: [],
-        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:''}
+        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:'',loanTypeName:'',applyStatus:'1'}
     }
     //组件加载完毕后触发
     componentDidMount() {
-        this.getData()
+        // this.getData()
         // this.setState({data: data})
     }
 
@@ -258,7 +273,9 @@ class LoanApply extends Component {
 
         } else if (file.status == 'removed') {
             // todo 移除文件
-            let result = await fetch('')
+            let result = await fetch(`${remoteHost}/loanapply/removeFile`,{guid:this.state.selectedRows[0].guid,
+                step:'auditing',
+                fileNo:file.uid})
             if (result.success) {
                 fileList = []
             }
@@ -312,6 +329,18 @@ class LoanApply extends Component {
                 <div style={{marginBottom: 16}}>
                     <Button type="primary" onClick={this.openApplyModal}
                             disabled={this.state.selectedRows.length == 0}>审批</Button>
+                    <Button type="primary" onClick={()=>{
+                        let {approve, selectedRows} = this.state
+                        this.setState({
+                            approve: {
+                                ...approve,
+                                modalVisible: true,
+                                // fileList: result.files.map((item) => {
+                                //     return {name: item.fileName, status: 'done', uid: item.fileNo,url: `${remoteHost}/download?fileNo=${item.fileNo}`}
+                                // })
+                            }
+                        })
+                    }}>审批</Button>
                 </div>
 
                 <Table
@@ -334,6 +363,9 @@ class LoanApply extends Component {
                         <Button type='primary' onClick={this.formResovle}>审批通过</Button>
                         <Button type='danger' onClick={this.formReject}>审批终止</Button>
                         <Button onClick={this.formCancel}>取消</Button>
+                        <Button onClick={()=>{
+                            this.form.validateFields()
+                        }}>TEST</Button>
                     </div>}
                     width={600}
                     onCancel={() => {
@@ -361,8 +393,7 @@ class LoanApply extends Component {
                             </Button>
 
                         </Upload>
-                        <Input type="textarea" />
-
+                        <CollectionCreateForm ref={this.saveFormRef}/>
                     </div>
                 </Modal>
 
