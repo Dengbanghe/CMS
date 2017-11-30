@@ -8,7 +8,8 @@ const SubMenu = Menu.SubMenu;
 
  class App extends Component {
     render() {
-        const {menus,changeBreadcrumb} = this.props
+        const {changeBreadcrumb} = this.props
+        const menus = JSON.parse(localStorage.getItem('menu'))
         const loopMenu = (menus)=>{
             return menus.map((item)=>{
                 if (item.children) {

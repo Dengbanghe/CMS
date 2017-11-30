@@ -97,6 +97,13 @@ export default [{
                 }, 'loanAssess')
             }
         },{
+            path: '/loanConfirm',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/loanConfirm'))
+                }, 'loanConfirm')
+            }
+        },{
             path: '/404',
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {

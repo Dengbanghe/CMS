@@ -1,9 +1,44 @@
 import React, {Component} from 'react' // 引入React
 import {connect} from 'react-redux'
-import {Table, Button, Modal, Form, Input, Radio, TreeSelect, Popover, Upload, Icon, message} from 'antd'
+import {Table, Button, Modal, Form, Input, Popover, Upload, Icon, message,Tabs} from 'antd'
 import {fetch, remoteHost, toThousands} from '../util/common'
 import moment from 'moment'
 import './masterTable.css'
+const FormItem = Form.Item
+const TabPane = Tabs.TabPane;
+
+const CollectionCreateForm = Form.create()(
+    (props) => {
+        const { visible, onCancel, onCreate, form ,title,confirmLoading,postTree,changePostValue,postValue} = props;
+        const { getFieldDecorator } = form;
+        const formItemLayout = {
+            labelCol: {
+                xs: { span: 12 },
+                sm: { span: 4 },
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 16 },
+            },
+        };
+        return (
+            <Form style={{marginTop:10}}>
+                {getFieldDecorator('guid')(
+                    <Input type="hidden" />
+                )}
+                <FormItem label="估值" {...formItemLayout}>
+                    {getFieldDecorator('assessMoney',{ rules: [{ required: true, message: '请输入估值'},{ pattern:/^[1-9]\d{0,6}(\.\d{0,2})?$/, message: '请输入正确估值'}],})(
+                        <Input suffix='元'/>
+                    )}
+                </FormItem>
+                <FormItem label="说明" {...formItemLayout}>
+                    {getFieldDecorator('confirmRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
+                        <Input type='textarea'/>
+                    )}
+                </FormItem>
+            </Form>
+        )
+    })
 
 class LoanAssess extends Component {
     state = {
@@ -17,7 +52,7 @@ class LoanAssess extends Component {
         confirmLoading: false,
         postValue: '',
         subTableData: [],
-        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:''}
+        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:'',tabActive:1}
     }
     //组件加载完毕后触发
     componentDidMount() {
@@ -83,8 +118,8 @@ class LoanAssess extends Component {
         dataIndex: 'repayMethodName',
         width: 80
     }, {
-        title: '贷款时间(月)',
-        dataIndex: 'loanTerm',
+        title: '贷款时间',
+        dataIndex: 'loanTermName',
         width: 60
     }, {
         title: '贷款状态',
@@ -196,31 +231,16 @@ class LoanAssess extends Component {
     }
 
     saveFormRef = (form) => {
-        console.log("test",form)
         this.form = form
     }
 
     formCancel = () => {
         const {approve} = this.state
-        this.setState({approve: {...approve, modalVisible: false}});
+        this.setState({approve: {...approve, modalVisible: false,tabActive:'1'}});
     }
 
     handleCancel = () => {
         this.setState({ modalVisible: false})
-    }
-
-    handleCreate = () => {
-        const form = this.form;
-        form.validateFields(async (err, values) => {
-            // values.date = values.date.format("YYYY-MM-DD")
-            if (err) {
-                return;
-            }
-            this.setState({confirmLoading: true});
-            fetch(`${remoteHost}/user/saveUpdate`, {...values, fPostid: values.fPostid.replace('post_', '')})
-            form.resetFields();
-            this.setState({modalVisible: false, confirmLoading: false});
-        });
     }
 
     onRowClick = (record, index) => {
@@ -233,27 +253,18 @@ class LoanAssess extends Component {
     }
 
     openApplyModal = async () => {
-        const fileNo= '18993cc2-9ac6-4abb-ab4c-408f83faff03'
-        let {approve, selectedRows} = this.state
-            // result = [{fileName:'test.txt',status:'done',fileNo:`${fileNo}`}]
-        let result = await fetch(`${remoteHost}//loanapply/getStepDetail`, {step: 'pinggu', guid: selectedRows[0].guid})
-
-
+        let {approve} = this.state
         this.setState({
             approve: {
                 ...approve,
-                modalVisible: true,
-                fileList: result.files.map((item) => {
-                    return {name: item.fileName, status: 'done', uid: item.fileNo,url: `${remoteHost}/download?fileNo=${item.fileNo}`}
-                })
+                modalVisible: true
             }
         })
-
     }
 
     uploadChange =async({file, fileList}) => {
         const {approve} =this.state
-        fileList = []
+        fileList = [file]
         if (!file.status) {
 
         } else if (file.status == 'removed') {
@@ -274,23 +285,56 @@ class LoanAssess extends Component {
     }
 
     formResovle =async ()=>{
-        // this.form.validateFields(async(err,values)=>{
-            let result = await fetch(`${remoteHost}/loanapply/step`,{guid:this.state.selectedRows[0].guid,status:10})
+        this.form.validateFields(async(err,values)=>{
+            if(err){
+                return
+            }
+            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:20})
             if(result.success){
                 this.formCancel()
+                this.getData()
             }
-        // })
+        })
     }
     formReject =async()=>{
-        // this.form.validateFields(async(err,values)=>{
-            let result = await fetch(`${remoteHost}/loanapply/step`,{guid:this.state.selectedRows[0].guid,status:11})
+        this.form.validateFields(async(err,values)=>{
+            if(err){
+                return
+            }
+            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:21})
             if(result.success){
                 this.formCancel()
+                this.getData()
             }
-        // })
+        })
     }
-    remarkChange = (e,a)=>{
-        console.log(e,a)
+
+    tabChange = async(tabKey)=>{
+        let {approve, selectedRows} = this.state
+        this.setState({
+            approve: {
+                ...approve,
+                tabActive:tabKey,
+            }
+        })
+        if(tabKey!='2'){
+            return
+        }
+
+        const row = selectedRows[0]
+        // result = [{fileName:'test.txt',status:'done',fileNo:`${fileNo}`}]
+        let result = await fetch(`${remoteHost}/loanapply/getStepDetail`, {step: 'pinggu', guid: selectedRows[0].guid})
+        this.setState({
+            approve: {
+                ...approve,
+                modalVisible: true,
+                tabActive:tabKey,
+                fileList: result.files.map((item) => {
+                    return {name: item.fileName, status: 'done', uid: item.fileNo,url: `${remoteHost}/download?fileNo=${item.fileNo}`}
+                })
+            }
+        })
+        this.form.setFieldsValue(result.stepDetail)
     }
 
     render() {
@@ -325,40 +369,53 @@ class LoanAssess extends Component {
                 />
                 <Modal
                     visible={approve.modalVisible}
-                    title='贷款申请审批'
+                    title='贷款申请评估'
                     footer={<div>
-                        <Button type='primary' onClick={this.formResovle}>审批通过</Button>
-                        <Button type='danger' onClick={this.formReject}>审批终止</Button>
+                        <Button type='primary' onClick={this.formResovle} disabled={approve.tabActive!=2}>评估通过</Button>
+                        <Button type='danger' onClick={this.formReject} disabled={approve.tabActive!=2}>评估终止</Button>
                         <Button onClick={this.formCancel}>取消</Button>
                     </div>}
-                    width={600}
+                    width={700}
                     onCancel={() => {
                         this.setState({approve: {...approve, modalVisible: false}})
                     }}
                 >
                     <div>
-                        <Upload
-                            action={`${remoteHost}/loanapply/upload`}
-                            fileList={approve.fileList}
-                            onChange={this.uploadChange}
-                            //上传文件携带的参数  申请id 以及申请阶段标识
-                            data={{guid: selectedRows[0] == null ? '' : selectedRows[0].guid,step:'auditing'}}
-                            headers={{token: localStorage.getItem("token")}}
-                            accept='application/pdf '
-                            beforeUpload={(file) => {
-                                if(!file.name.includes('.pdf')){
-                                    message.warning('仅允许上传pdf文件')
-                                    return false
-                                }
-                            }}
+                        <Tabs defaultActiveKey = '1' size="small"
+                            onChange={this.tabChange}
                         >
-                            <Button>
-                                <Icon type="upload" /> 上传评估报告
-                            </Button>
-
-                        </Upload>
-                        <Input type="textarea" />
-
+                            <TabPane tab="质押详情" key="1">
+                                <Table
+                                    rowKey="guid"
+                                    size="small"
+                                    columns={this.subTableColumns}
+                                    dataSource={subTableData}
+                                    pagination={false}
+                                />
+                            </TabPane>
+                            <TabPane tab="评估" key="2">
+                                <Upload
+                                    action={`${remoteHost}/loanapply/upload`}
+                                    fileList={approve.fileList}
+                                    onChange={this.uploadChange}
+                                    //上传文件携带的参数  申请id 以及申请阶段标识
+                                    data={{guid: selectedRows[0] == null ? '' : selectedRows[0].guid,step:'pinggu'}}
+                                    headers={{token: localStorage.getItem("token")}}
+                                    accept='application/pdf '
+                                    beforeUpload={(file) => {
+                                        if(!file.name.includes('.pdf')){
+                                            message.warning('仅允许上传pdf文件')
+                                            return false
+                                        }
+                                    }}
+                                >
+                                    <Button>
+                                        <Icon type="upload" /> 上传评估报告
+                                    </Button>
+                                </Upload>
+                                <CollectionCreateForm ref={this.saveFormRef}/>
+                            </TabPane>
+                        </Tabs>
                     </div>
                 </Modal>
 

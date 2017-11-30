@@ -9,6 +9,7 @@
 
 2. 基础数据
     1. [region 行政区划](#region)
+    2. [rate 利率](#rate)
     
 3. 核心业务
     1. [apply 贷款申请](#apply)
@@ -347,9 +348,20 @@ res:{
 ## <span id="region">region</span>
 新增新增区划 **/region/saveUpdate**
 
-
-
-
+## <span id="rate">rate</span>
+提供利率option **/loanapply/getRatesSelection**
+```
+req:{
+    loanTypeId:
+    repayMethodCode:
+    loanTermId：
+}
+res:[{
+    rates:
+    rateName:
+    }
+]
+```
 ## <span id="apply">apply</span>
 
 获取贷款申请数据 **/loanapply/page**

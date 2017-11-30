@@ -88,6 +88,7 @@ const CollectionCreateForm = Form.create()(
                         <FormItem label="岗位">
                             {getFieldDecorator('fPostid', {})(
                                 <TreeSelect
+                                    // multiple={true}
                                     // value={postValue}
                                     treeData={postTree}
                                     treeDefaultExpandAll
@@ -134,9 +135,7 @@ class User extends Component{
     //组件加载完毕后触发
     async componentDidMount(){
         let postTreeData =await fetch(`${remoteHost}/post/tree`)
-        console.log(postTreeData)
-        postTreeData = postTreeData.map(item=>{return {...item,label:item._title,value:item._id}})
-        console.log(postTreeData)
+        postTreeData = postTreeData.map(item=>{return {...item,label:item._title,value:item._id,disabled:item._id.includes('dept')}})
         this.setState({postTree:postTreeData})
         this.getData({...this.state.pagination})
     }

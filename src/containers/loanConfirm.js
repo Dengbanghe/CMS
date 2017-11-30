@@ -1,14 +1,14 @@
 import React, {Component} from 'react' // 引入React
 import {connect} from 'react-redux'
-import {Table, Button, Modal, Form, Input, Radio, TreeSelect, Popover, Upload, Icon, message} from 'antd'
+import {Table, Button, Modal, Form, Input, Radio, TreeSelect, Popover, Upload, Icon, message,Select} from 'antd'
 import {fetch, remoteHost, toThousands} from '../util/common'
 import moment from 'moment'
 import './masterTable.css'
 const FormItem = Form.Item
-
+const Option = Select.Option;
 const CollectionCreateForm = Form.create()(
     (props) => {
-        const { visible, onCancel, onCreate, form ,title,confirmLoading,postTree,changePostValue,postValue} = props;
+        const { form ,ratesOptions,selectValue,confirmRateChange} = props;
         const { getFieldDecorator } = form;
         const formItemLayout = {
             labelCol: {
@@ -21,11 +21,37 @@ const CollectionCreateForm = Form.create()(
             },
         };
         return (
-            <Form style={{marginTop:10}}>
+            <Form size="small" style={{marginTop:10}}>
                 {getFieldDecorator('guid')(
                     <Input type="hidden"/>
                 )}
-                <FormItem label="备注" {...formItemLayout}>
+                <FormItem label="估值" {...formItemLayout}>
+                    {getFieldDecorator('assessMoney')(
+                        <Input disabled={true}/>
+                    )}
+                </FormItem>
+                <FormItem label="发放贷款金额" {...formItemLayout}>
+                    {getFieldDecorator('confirmMoney',{ rules: [{ required: true, message: '请输入发放贷款金额'},{ pattern:/^[1-9]\d{0,6}(\.\d{0,2})?$/, message: '请输入正确发放贷款金额'}]})(
+                        <Input />
+                    )}
+                </FormItem>
+                <FormItem label="服务费" {...formItemLayout}>
+                    {getFieldDecorator('confirmServerMoney',{ rules: [{ required: true, message: '请输入服务费'},{ pattern:/^\d{1,6}(\.\d{0,2})?$/, message: '请输入正确服务费'}]})(
+                        <Input />
+                    )}
+                </FormItem>
+                <FormItem label="利率标准" {...formItemLayout}>
+                    {getFieldDecorator('confirmRates',{ rules: [{ required: true, message: '请选择利率标准'}]})(
+                        <Select value={selectValue}
+                            onChange={confirmRateChange}
+                        >
+                            {ratesOptions.map(item=>{
+                                return (<Option value={item.rates}>{item.rateName}</Option>)
+                            })}
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem label="说明" {...formItemLayout}>
                     {getFieldDecorator('confirmRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
                         <Input type='textarea'/>
                     )}
@@ -34,7 +60,7 @@ const CollectionCreateForm = Form.create()(
         )
     })
 
-class LoanApply extends Component {
+class LoanAssess extends Component {
     state = {
         data: [],
         pagination: {pageSize: 20, current: 1},
@@ -46,7 +72,9 @@ class LoanApply extends Component {
         confirmLoading: false,
         postValue: '',
         subTableData: [],
-        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:''}
+        approve: {modalVisible: false, params: {}, fileList: [],remarkValue:''},
+        ratesOptions:[],
+        selectValue:''
     }
     //组件加载完毕后触发
     componentDidMount() {
@@ -56,7 +84,7 @@ class LoanApply extends Component {
 
     getData = async (param) => {
         this.setState({loading: true})
-        let data = await fetch(`${remoteHost}/loanapply/page`, {...param,step:'shenpi'})
+        let data = await fetch(`${remoteHost}/loanapply/page`, {...param,step:'shenhe'})
         this.setState({data: data.data, pagination: data.page, loading: false})
     }
     //分页 排序 过滤 触发回调方法
@@ -72,7 +100,7 @@ class LoanApply extends Component {
         key: 'applyNo',
         dataIndex: 'applyNo',
         width: 120,
-    }, /*{
+    }, {
         title: '',
         key: 'guid',
         width: 100,
@@ -82,7 +110,7 @@ class LoanApply extends Component {
                 this.setState({modalVisible: true})
             }}>质押详情</Button>)
         }
-    },*/ {
+    }, {
         title: '用户信息',
         children: [{
             title: '贷款人',
@@ -225,7 +253,6 @@ class LoanApply extends Component {
     }
 
     saveFormRef = (form) => {
-        console.log("test",form)
         this.form = form
     }
 
@@ -263,15 +290,22 @@ class LoanApply extends Component {
 
     openApplyModal = async () => {
         const fileNo= '18993cc2-9ac6-4abb-ab4c-408f83faff03'
+
         let {approve, selectedRows} = this.state
+        const row = selectedRows[0]
+        console.log(row)
             // result = [{fileName:'test.txt',status:'done',fileNo:`${fileNo}`}]
-        let result = await fetch(`${remoteHost}/loanapply/getStepDetail`, {step: 'shenpi', guid: selectedRows[0].guid})
+        let result = await fetch(`${remoteHost}/loanapply/getStepDetail`, {step: 'shenhe', guid: selectedRows[0].guid})
+        let result1 = await  fetch(`${remoteHost}/loanapply/getRatesSelection`,{fLoanTermId:row.fLoanTermId,fLoanTypeId:row.fLoanTypeId,fRepayMethodCode:row.fRepayMethodCode})
 
-
-
+        const ratesOptions = result1.map(item=>{
+            return {rates:item.rates,rateName:item.rateName}
+        })
         this.setState({
+            ratesOptions:ratesOptions,
             approve: {
                 ...approve,
+
                 modalVisible: true,
                 fileList: result.files.map((item) => {
                     return {name: item.fileName, status: 'done', uid: item.fileNo,url: `${remoteHost}/download?fileNo=${item.fileNo}`}
@@ -283,7 +317,7 @@ class LoanApply extends Component {
 
     uploadChange =async({file, fileList}) => {
         const {approve} =this.state
-        fileList = [file]
+        fileList = []
         if (!file.status) {
 
         } else if (file.status == 'removed') {
@@ -293,10 +327,6 @@ class LoanApply extends Component {
                 fileList = []
             }
         }else if(file.status =='done'){
-
-        }
-        if(file && file.response && file.response.success){
-            console.log(file.response)
             if(file.response.success){
                 file.uid=file.response.fileNo
                 file.url=`${remoteHost}/download?fileNo=${file.response.fileNo}`
@@ -312,7 +342,7 @@ class LoanApply extends Component {
             if(err){
                 return
             }
-            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:10})
+            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:30})
             if(result.success){
                 this.formCancel()
                 this.getData()
@@ -324,16 +354,20 @@ class LoanApply extends Component {
             if(err){
                 return
             }
-            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:11})
+            let result = await fetch(`${remoteHost}/loanapply/step`,{...values,applyStatus:31})
             if(result.success){
                 this.formCancel()
                 this.getData()
             }
         })
     }
-
+    confirmRateChange=(value)=>{
+        this.setState({selectValue:value})
+    }
     render() {
-        const {data, loading, modalVisible, selectedRowKeys, pagination, modalTitle, subTableData, approve, selectedRows} = this.state;
+        const {data, loading, modalVisible, selectedRowKeys, pagination, modalTitle, subTableData, approve, selectedRows,selectValue,
+
+        } = this.state;
         const rowSelection = {
             selectedRowKeys,
             type: 'radio',
@@ -346,7 +380,7 @@ class LoanApply extends Component {
             <div>
                 <div style={{marginBottom: 16}}>
                     <Button type="primary" onClick={this.openApplyModal}
-                            disabled={this.state.selectedRows.length == 0}>审批</Button>
+                            disabled={this.state.selectedRows.length == 0}>审核</Button>
                 </div>
 
                 <Table
@@ -364,10 +398,10 @@ class LoanApply extends Component {
                 />
                 <Modal
                     visible={approve.modalVisible}
-                    title='贷款申请审批'
+                    title='贷款申请评估'
                     footer={<div>
-                        <Button type='primary' onClick={this.formResovle}>审批通过</Button>
-                        <Button type='danger' onClick={this.formReject}>审批终止</Button>
+                        <Button type='primary' onClick={this.formResovle}>评估通过</Button>
+                        <Button type='danger' onClick={this.formReject}>评估终止</Button>
                         <Button onClick={this.formCancel}>取消</Button>
                     </div>}
                     width={600}
@@ -376,29 +410,32 @@ class LoanApply extends Component {
                     }}
                 >
                     <div>
-
                         <Upload
                             action={`${remoteHost}/loanapply/upload`}
                             fileList={approve.fileList}
                             onChange={this.uploadChange}
                             //上传文件携带的参数  申请id 以及申请阶段标识
-                            data={{guid: selectedRows[0] == null ? '' : selectedRows[0].guid,step:'shenpi'}}
+                            data={{guid: selectedRows[0] == null ? '' : selectedRows[0].guid,step:'auditing'}}
                             headers={{token: localStorage.getItem("token")}}
                             accept='application/pdf '
                             beforeUpload={(file) => {
-                                // if(!file.name.includes('.pdf')){
-                                //     message.warning('仅允许上传pdf文件')
-                                //     return false
-                                // }
+                                if(!file.name.includes('.pdf')){
+                                    message.warning('仅允许上传pdf文件')
+                                    return false
+                                }
                             }}
                         >
-                            <Button>
-                                <Icon type="upload" /> 上传征信报告
-                            </Button>
+                            {/*<Button>*/}
+                                {/*/!*<Icon type="upload" /> 上传审核报告*!/*/}
+                            {/*</Button>*/}
 
                         </Upload>
-                        <CollectionCreateForm ref = {this.saveFormRef}/>
-
+                        <CollectionCreateForm
+                            ref={this.saveFormRef}
+                            ratesOptions={this.state.ratesOptions}
+                            selectValue={selectValue}
+                            confirmRateChange={this.confirmRateChange}
+                        />
                     </div>
                 </Modal>
 
@@ -421,4 +458,4 @@ class LoanApply extends Component {
     }
 }
 
-module.exports = connect()(LoanApply)
+module.exports = connect()(LoanAssess)

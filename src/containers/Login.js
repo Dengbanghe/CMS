@@ -15,9 +15,12 @@ class Login extends  React.Component{
                 return
             }
             let result =  await fetch(`${remoteHost}/login`,values)
+            let menuTree = transfer2tree(result.menus,{rootId:'menu_0'})
             localStorage.setItem('token',result.token)
+            localStorage.setItem('menu',JSON.stringify(menuTree))
             // 菜单交由redux管理
-            setUserData(transfer2tree(result.menus,{rootId:'menu_0'}))
+            setUserData(menuTree)
+
             router.push('/home')
         })
     }
