@@ -288,7 +288,9 @@ class LoanApply extends Component {
 
         } else if (file.status == 'removed') {
             // todo 移除文件
-            let result = await fetch('')
+            let result = await fetch(`${remoteHost}/loanapply/removeFile`,{guid:this.state.selectedRows[0].guid,
+                step:'auditing',
+                fileNo:file.uid})
             if (result.success) {
                 fileList = []
             }
