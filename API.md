@@ -545,3 +545,343 @@ res:{
 ```
 
 
+
+
+行政区划分页查询 **/region/page**
+
+ ```
+ req:{
+    pageSize:2,
+    current:1
+ }
+res:{
+    page:{
+        pageSize:2,
+        current:2,
+        total :100
+     },
+     data:[{
+            reginame: '河北省',
+            regicode: 130000,
+            sort:1,
+            p_Regicode:0,
+            children: [{
+                        reginame: '长安区',
+                        regicode: 130002,
+                        p_Regicode: 130000,
+                        sort:2
+                    }, {
+                        reginame: '桥西区',
+                        regicode: 130004,
+                        p_Regicode: 130000,
+                        sort:0
+                    }]
+        }, {
+            reginame: '天津市',
+            regicode: 120000,
+            sort:0,
+            p_Regicode:0,
+            children:[{
+                reginame: '和平区',
+                regicode: 120001,
+                p_Regicode: 120000,
+                sort:1
+            }]
+        }]
+    }
+
+ ```
+ 行政区划查询 **/region/list**
+ ```
+ res:{
+    data:[{
+            reginame: '河北省',
+            regicode: 130000,
+            sort:1,
+            p_Regicode:0,
+            children: [{
+                        reginame: '长安区',
+                        regicode: 130002,
+                        p_Regicode: 130000,
+                        sort:2
+                    }, {
+                        reginame: '桥西区',
+                        regicode: 130004,
+                        p_Regicode: 130000,
+                        sort:0
+                    }]
+            }, {
+                reginame: '天津市',
+                regicode: 120000,
+                sort:0,
+                p_Regicode:0,
+                children:[{
+                    reginame: '和平区',
+                    regicode: 120001,
+                    p_Regicode: 120000,
+                    sort:1
+                }]
+          }]
+ }
+
+ ```
+ 行政区划新增和修改 **/region/saveUpdate**
+
+ ```
+ req:{
+    p_Regicode: 120000
+    regicode: 120001
+    reginame: 和平区
+    sort: 0
+ }
+ res:{
+    success:true,
+    message:'保存成功'
+ }
+
+ ```
+ 行政区划删除 **/region/remove**
+ ```
+ req:{
+    regicode:12000
+ }
+ res:{
+    success:true,
+    message:''
+ }
+
+ ```
+ 贷款类型分页请求 **/loantype/page**
+
+ ```
+ req:{
+    pageSize:2,
+    current:1
+ }
+ res:{
+    page:{
+        pageSize:2,
+        current:2,
+        total :50
+     },
+    data:[{
+         guid:1,
+         loanTypeName: '非上市银行股权质押贷款',
+         remark: '非上市银行股权质押贷款',
+         status: 0,
+         sort:1
+     },{
+        guid:2,
+        loanTypeName: '房地产抵押贷款',
+         remark: '房地产抵押贷款',
+         status: 1,
+         sort: 0
+     },{
+        guid:3,
+        loanTypeName: '地产抵押贷款',
+        remark: '地产抵押贷款',
+        status: 2,
+        sort: 2
+    }]
+ }
+
+ ```
+ 贷款类型请求 **/loantype/list**
+
+ ```
+ res:{
+    data:[{
+             guid:1,
+             loanTypeName: '非上市银行股权质押贷款',
+             remark: '非上市银行股权质押贷款',
+             status: 0,
+             sort:1
+         },{
+         guid:2,
+            loanTypeName: '房地产抵押贷款',
+             remark: '房地产抵押贷款',
+             status: 1,
+             sort: 0
+         }]
+ }
+
+ ```
+ 贷款类型新增和修改 **/loantype/saveUpdate**
+ 有guid为修改 没有guid为新增
+ ```
+ req:{
+    guid: 1,
+    loanTypeName: '非上市银行股权质押贷款',
+    remark: '非上市银行股权质押贷款说明',
+    status: 0,
+    sort: 0
+ }
+ res:{
+    success:true,
+    message:''
+ }
+
+ ```
+ 贷款类型删除 **/loantype/remove**
+ ```
+ req:{
+    guid:1
+ }
+ res:{
+    success:true,
+    message:''
+ }
+
+ ```
+ 贷款期限及利率分页查询 **/loanrate/page**
+ ```
+ req:{
+    pageSize:20,
+    current：1
+ }
+ res:{
+    page:{
+        pageSize:2,
+        current:2,
+        total :100
+     },
+     data:[{
+              guid:1,
+              fLoanTypeId: `1`,
+              loanTypeName: '非上市银行股权质押贷款',
+              fRepayMethodCode:`1`,
+              repayMethod: '先息后本',
+              fLoanTermId:`1`,
+              loanTerm: '12期',
+              rates: 0.01,
+              rateName:'普通会员'
+          },{
+              guid:2,
+              fLoanTypeId: `2`,
+              loanTypeName: '房地产抵押贷款',
+              fRepayMethodCode:`2`,
+              repayMethod: '本息同额',
+              fLoanTermId:`2`,
+              loanTerm: '24期',
+              rates: 0.022,
+              rateName:'高级会员'
+          }]
+  }
+
+  ```
+  贷款期限及利率新增和修改 **/loanrate/saveUpdate**
+   有主键为修改  没有主键为新增
+  ```
+  req:{
+    guid: 1,
+    rateName: '普通会员',
+    fLoanTypeId: 1,
+    fRepayMethodCode: 1,
+    fLoanTermId: 1,
+    rates: 0.001
+  }
+  res:{
+      success:true,
+      message:''
+  }
+
+  ```
+  贷款期限及利率删除  **/loanrate/remove**
+
+  ```
+  req:{
+    guid: 1
+  }
+  res:{
+        success:true,
+        message:''
+   }
+
+ ```
+ 还款方式分页查询 **/repaymethod/page**
+
+ ```
+ req:{
+    pageSize:20,
+    current：1
+ }
+ res:{
+    page:{
+        pageSize:2,
+        current:2,
+        total :100
+     },
+     data : [{
+         methodCode:1,
+         methodName: '先息后本',
+         remark: '先息后本',
+     },{
+         methodCode:2,
+         methodName: '本息同额',
+         remark: '本息同额',
+     }]
+ }
+
+ ```
+ 还款方式请求 **/repaymethod/list**
+ ```
+ res:{
+    data:[{
+             methodCode:1,
+             methodName: '先息后本',
+             remark: '先息后本',
+         },{
+             methodCode:2,
+             methodName: '本息同额',
+             remark: '本息同额',
+        }]
+ }
+
+ ```
+ 还款方式新增和修改 **/repaymethod/saveUpdate**
+ 有methodCode为修改  没有methodCode为新增
+ ```
+ req:{
+    methodCode: 1
+    methodName: '先息后本',
+    remark: '先息后本'
+ }
+ res:{
+    success:true,
+    message:''
+ }
+
+ ```
+ 还款方式删除 **/repaymethod/remove**
+
+ ```
+ req:{
+    regicode:1
+ }
+ res:{
+     success:true,
+     message:''
+  }
+
+  ```
+  贷款期限请求  **/loanterm/list**
+  ```
+  res:{
+    data:[{
+            guid:1,
+            loanTermName:'12期',
+            stauts:0
+        },{
+            guid:2,
+            loanTermName:'24期',
+            stauts:0
+        },{
+            guid:3,
+            loanTermName:'36期',
+            stauts:0
+        }]
+  }
+
+  ```
+
+

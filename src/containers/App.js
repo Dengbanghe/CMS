@@ -33,20 +33,21 @@ const SubMenu = Menu.SubMenu;
                       defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']}
                       onClick={clickMenu}
                       onSelect={selectMenu}>
-                    {/*<Menu.Item key="sub1" ><Link to="/index" activeStyle={{textDecoration:'none'}} ><Icon type="user"/>我的主页</Link></Menu.Item>*/}
-                    {/*<SubMenu key="sub2" title={<span><Icon type="laptop" />基础数据管理</span>}>*/}
-                    {/*<Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>*/}
-                    {/*<Menu.Item key="6">金融机构</Menu.Item>*/}
-                    {/*<Menu.Item key="7">贷款机构</Menu.Item>*/}
-                    {/*<Menu.Item key="8">贷款类型</Menu.Item>*/}
-                    {/*</SubMenu>*/}
-                    {/*<SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>*/}
-                    {/*<Menu.Item key="9"><Link to="/dept">部门管理</Link></Menu.Item>*/}
-                    {/*<Menu.Item key="10"><Link to="/post">岗位管理</Link></Menu.Item>*/}
-                    {/*<Menu.Item key="11"><Link to="/role">角色管理</Link></Menu.Item>*/}
-                    {/*<Menu.Item key="12"><Link to="/menu">菜单管理</Link></Menu.Item>*/}
-                    {/*<Menu.Item key="13"><Link to="/user">用户管理</Link></Menu.Item>*/}
-                    {/*</SubMenu>*/}
+                    <Menu.Item key="sub1" ><Link to="/index" activeStyle={{textDecoration:'none'}} ><Icon type="user"/>我的主页</Link></Menu.Item>
+                    <SubMenu key="sub2" title={<span><Icon type="laptop" />基础数据管理</span>}>
+                        <Menu.Item key="5"><Link to="/region">行政区划管理</Link></Menu.Item>
+                        <Menu.Item key="8"><Link to="/loanType">贷款类型</Link></Menu.Item>
+                        <Menu.Item key="9"><Link to="/repayMethod">还款方式管理</Link></Menu.Item>
+                        <Menu.Item key="10"><Link to="/loanTermRate">贷款期限及利率管理</Link></Menu.Item>
+                        <Menu.Item key="11"><Link to="/bank">非上市银行管理</Link></Menu.Item>
+                    </SubMenu>
+                    <SubMenu key="sub3" title={<span><Icon type="notification" />权限管理</span>}>
+                        <Menu.Item key="9"><Link to="/dept">部门管理</Link></Menu.Item>
+                        <Menu.Item key="10"><Link to="/post">岗位管理</Link></Menu.Item>
+                        <Menu.Item key="11"><Link to="/role">角色管理</Link></Menu.Item>
+                        <Menu.Item key="12"><Link to="/menu">菜单管理</Link></Menu.Item>
+                        <Menu.Item key="13"><Link to="/user">用户管理</Link></Menu.Item>
+                    </SubMenu>
                     {loopMenu(menus)}
                 </Menu>
             </aside>

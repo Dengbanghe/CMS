@@ -76,6 +76,34 @@ export default [{
                 }, 'Region')
             }
         },{
+            path: '/loanType',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/LoanType'))
+                }, 'LoanType')
+            }
+        },{
+            path: '/loanTermRate',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/LoanTermAndRate'))
+                }, 'LoanTermAndRate')
+            }
+        },{
+            path: '/repayMethod',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/RepayMethod'))
+                }, 'RepayMethod')
+            }
+        },{
+            path: '/bank',
+            getComponent(nextState, cb) {
+                require.ensure([], (require) => {
+                    cb(null, require('../containers/bank'))
+                }, 'Bank')
+            }
+        },{
             path: '/user',
             getComponent(nextState, cb) {
                 require.ensure([], (require) => {

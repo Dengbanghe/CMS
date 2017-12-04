@@ -1,90 +1,59 @@
 import React, { Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,Icon ,Select } from 'antd';
+import { Table ,Button, Modal, Form, Input,Icon, Select,Radio } from 'antd';
 import { fetch ,remoteHost,transfer2tree} from '../util/common'
 // import { getRegionData } from '../actions/regicodeMgmt';
 
 const FormItem = Form.Item;
 const ButtonGrid = Button.Group;
+const RadioGroup = Radio.Group;
 const Option = Select.Option;
 
 const columns = [{
-    title: '行政区划名称',
-    dataIndex: 'reginame',
-    key: 'reginame',
-    width: '60%',
+    title: '贷款类型名称',
+    dataIndex: 'loanTypeName',
+    key: 'loanTypeName',
+    width: '30%',
 }, {
-    title: '行政区划编码',
-    dataIndex: 'regicode',
-    key: 'regicode',
+    title: '介绍',
+    dataIndex: 'remark',
+    key: 'remark',
+    width: '40%',
+},{
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    render:function (text,record,index) {
+        if(text == 0){
+            return '正常'
+        }else if(text == 1){
+            return '停用'
+        }else{
+            return '删除'
+        }
+    }
 }];
 
 // const data = [{
-//     reginame: '河北省',
-//     regicode: 130000,
-//     children: [{
-//         reginame: '长安区',
-//         regicode: 130002,
-//         pRegicode: 130000
-//     }, {
-//         reginame: '桥西区',
-//         regicode: 130004,
-//         pRegicode: 130000
-//     }]
-// }, {
-//     reginame: '天津市',
-//     regicode: 120000,
-//     children:[{
-//         reginame: '和平区',
-//         regicode: 120001,
-//         pRegicode: 120000
-//         },{
-//         reginame: '河东区',
-//         regicode: 120002,
-//         pRegicode: 120000
-//     }]
-// }];
+//         guid:1,
+//         loantypename: '非上市银行股权质押贷款',
+//         remark: '非上市银行股权质押贷款',
+//         status: 0
+//     },{
+//         guid:2,
+//         loantypename: '房地产抵押贷款',
+//         remark: '房地产抵押贷款',
+//         status: 1
+//     }];
 
-const ReginAddForm = Form.create()(
+const LoanTypeForm = Form.create()(
     (props) => {
-        const { visible, onCancel,confirmLoading, onCreate, form ,title,selectedRowData,data,tagEidt,tagCreate} = props;
+        const { visible, onCancel,confirmLoading, onCreate, form ,title,sortTotal} = props;
         const {getFieldDecorator} = form;
 
-        // 根据选择（省，市级别）不同以及操作不同，提供的选择排序总数不同
         const sortSelectOption = []
-        if(tagEidt === 'edit'){
-            if(selectedRowData[0].pRegicode!=0){
-                data.forEach((e)=>{
-                    if(e.regicode == selectedRowData[0].pRegicode){
-                        for(let i=0;i<e.children.length;i++){
-                            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                        }
-                    }
-                })
-            }else{
-                for(let i=0;i<data.length;i++){
-                    sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                }
-            }
-        }else if(tagCreate === 'create'){
-            if(selectedRowData[0].pRegicode!=0){
-                data.forEach((e)=>{
-                    if(e.regicode == selectedRowData[0].pRegicode){
-                        for(let i=0;i<=e.children.length;i++){
-                            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                        }
-                    }
-                })
-            }else{
-                data.forEach((e)=>{
-                    for(let i=0;i<=e.children.length;i++){
-                        sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                    }
-                })
-                // for(let i=0;i<=data.length;i++){
-                //     sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                // }
-            }
+        for(let i=0;i<sortTotal;i++){
+            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
         }
 
         const formItemLayout = {
@@ -94,7 +63,7 @@ const ReginAddForm = Form.create()(
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 14 },
+                sm: { span: 15 },
             },
         }
 
@@ -107,23 +76,32 @@ const ReginAddForm = Form.create()(
             >
                 <div>
                     <Form>
-                        {getFieldDecorator('pRegicode',
-                            {initialValue: tagCreate === 'create' ? selectedRowData[0].regicode : selectedRowData[0].pRegicode})
-                        (
+                        {getFieldDecorator('guid')(
                             <Input type="hidden"/>
                         )}
-                        <FormItem label="行政区划编号" {...formItemLayout}>
-                            {getFieldDecorator('regicode', {
-                                rules: [{ required: true, message: '请输入行政区划编号' }],
+                        <FormItem label="贷款类型名称" {...formItemLayout}>
+                            {getFieldDecorator('loanTypeName', {
+                                rules: [{ required: true, message: '请输入贷款类型名称' }],
                             })(
-                                <Input placeholder="行政区划编号"/>
+                                <Input placeholder="贷款类型名称"/>
                             )}
                         </FormItem>
-                        <FormItem label="行政区划名称" style={{marginTop:10}} {...formItemLayout}>
-                            {getFieldDecorator('reginame', {
-                                rules: [{ required: true, message: '请输入行政区划名称' }],
+                        <FormItem label="贷款类型介绍" style={{marginTop:10}} {...formItemLayout}>
+                            {getFieldDecorator('remark', {
+                                rules: [{ required: false, message: '请输入贷款类型介绍' }],
                             })(
-                                <Input placeholder="行政区划名称"/>
+                                <Input type="textarea" placeholder="输入贷款类型介绍" />
+                            )}
+                        </FormItem>
+                        <FormItem label="状态" style={{ marginTop:10}} {...formItemLayout}>
+                            {getFieldDecorator('status', {
+                                rules: [{ required: true, message: '请选择贷款类型状态' }],
+                            })(
+                                <Select placeholder=" ---请选择---" >
+                                    <Option value="0">正常</Option>
+                                    <Option value="1">停用</Option>
+                                    <Option value="2">删除</Option>
+                                </Select>
                             )}
                         </FormItem>
                         <FormItem label="顺序" style={{marginTop:10}} {...formItemLayout}>
@@ -131,7 +109,7 @@ const ReginAddForm = Form.create()(
                                 rules: [{ required: false}],
                                 initialValue:'0'
                             })(
-                                <Select style={{width: 110 }}>
+                                <Select>
                                     {sortSelectOption}
                                 </Select>
                             )}
@@ -143,18 +121,15 @@ const ReginAddForm = Form.create()(
     }
 )
 
-class RegicodeMgmt extends Component{
+class LoanType extends Component{
     state = {
         data:[],
-        pagination: {pageSize:2,current:1},
+        pagination: {pageSize:10,current:1},
         loading:false,
         modalAddTitle: '',
         modalAddVisible: false,
         confirmLoading: false,
         selectedRows:[],
-        selectedRowData:[{}],
-        tagEidt:'',  //标记修改操作
-        tagCreate:''　//标记新增操作
     }
 
     componentDidMount(){
@@ -162,16 +137,9 @@ class RegicodeMgmt extends Component{
     }
     getData = async(param) =>{
         this.setState({loading:true})
-        let data = await fetch(`${remoteHost}/region/page`,param)
-        data.data.sort(this.compareUp(data.data,'sort'))
-        data.data.forEach((e)=>{
-            if(e.children.length>0){
-                e.children.sort(this.compareUp(e.children,'sort'))
-            }
-        })
+        let data = await fetch(`${remoteHost}/loantype/page`,param)
         // let dat = transfer2tree(data.data)
-        // console.log(dat)
-        // console.log("data-------"+data.data[0].children[0].reginame+data.page)
+        data.data.sort(this.compareUp(data.data,"sort"))
         this.setState({data:data.data,pagination:data.page ,loading:false})
     }
     // 升序排序
@@ -192,8 +160,6 @@ class RegicodeMgmt extends Component{
         }
     }
 
-
-
     pageChange = (pagination) => {
         // let sort = sorter.field===undefined?{}:{order:sorter.field,orderby:sorter.order==='ascend' ? 'asc' :sorter.order ==='descend'? 'desc':''}
         this.getData({...pagination})
@@ -204,25 +170,29 @@ class RegicodeMgmt extends Component{
     addRegin = () => {
         this.setState({
             modalAddVisible: true,
-            modalAddTitle: '新增行政区划',
-            tagEidt:'',
-            tagCreate:'create'
+            modalAddTitle: '新增贷款类型'
         });
         this.form.resetFields()
     }
     editRegin = () =>{
-        this.setState({tagCreate:'',tagEidt:'edit'})
-        this.setState({modalAddVisible: true, modalAddTitle:'修改行政区划'});
+        this.setState({modalAddVisible: true, modalAddTitle:'修改贷款类型'});
         let data = {...this.state.selectedRows[0]}
+        if(data.status == 0){
+            data.status = '正常'
+        }else if(data.status == 1){
+            data.status = '停用'
+        }else {
+            data.status = '删除'
+        }
         this.form.resetFields()
         this.form.setFieldsValue({...data})
     }
     deleteRegin = () =>{
         Modal.confirm({
             title: '警告',
-            content: '请确认是否需要删除该行政区划?',
+            content: '请确认是否需要删除该贷款类型?',
             onOk:  () => {
-                fetch(`${remoteHost}/region/remove`,{regicode:this.state.selectedRows[0].regicode})
+                fetch(`${remoteHost}/loantype/remove`,{guid:this.state.selectedRows[0].guid})
                 this.getData({...this.state.pagination})
             }
         })
@@ -230,12 +200,12 @@ class RegicodeMgmt extends Component{
     handleCreate = () => {
         const form = this.form;
         form.validateFields(async(err, values) => {
-            // console.log("values===="+values.reginame+values.regicode+"pcode="+values.pRegicode)
+            // console.log("values===="+values.reginame+values.regicode+values.p_regicode)
             if (err) {
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/region/saveUpdate`,{...values});
+            fetch(`${remoteHost}/loantype/saveUpdate`,{...values});
             form.resetFields();
             this.setState({ modalAddVisible: false ,confirmLoading:false})
 
@@ -250,17 +220,16 @@ class RegicodeMgmt extends Component{
     }
 
     onRowClick = (record,index) =>{
-        this.setState({selectedRowKeys:record.regicode.toString()})
+        this.setState({selectedRowKeys:record.guid.toString()})
         this.selectRow([record])
     }
 
     selectRow = (row)=>{
         this.setState({selectedRows:[...row]})
-        this.setState({selectedRowData:[...row]})
     }
 
     render(){
-        const {data, modalAddTitle, modalAddVisible, confirmLoading, selectedRowKeys, pagination,selectedRowData,tagEidt,tagCreate} = this.state;
+        const {data, modalAddTitle, modalAddVisible, confirmLoading, selectedRowKeys, pagination} = this.state;
         const rowSelection = {
             selectedRowKeys,
             type : 'radio',
@@ -272,39 +241,30 @@ class RegicodeMgmt extends Component{
 
         return (
             <div>
-                <Button type="primary" icon="plus" onClick={this.addRegin} disabled={this.state.selectedRows.length==0}>新增</Button>
+                <Button type="primary" icon="plus" onClick={this.addRegin} >新增</Button>
                 <Button type="primary" icon="edit" onClick={this.editRegin} disabled={this.state.selectedRows.length==0} style={{marginLeft:10}}>修改</Button>
                 <Button type="danger" icon="minus" onClick={this.deleteRegin} disabled={this.state.selectedRows.length==0} style={{marginLeft:10,marginBottom:10}}>删除</Button>
                 {data.length>0?<Table
                     columns={columns}
                     rowSelection={rowSelection}
                     dataSource={data}
-                    rowKey ='regicode'
+                    rowKey ='guid'
                     pagination={pagination}
                     onChange={this.pageChange}
                     onRowClick={this.onRowClick}
-                    defaultExpandAllRows={true}
                     bordered
                 />:<div><Icon type="frown-o" />暂无数据</div>}
-                <ReginAddForm
+                <LoanTypeForm
                     ref={this.saveFormRef}
                     title={modalAddTitle}
                     visible={modalAddVisible}
                     onCancel={this.handleCancel}
                     onCreate={this.handleCreate}
-                    selectedRowData={selectedRowData}
-                    data={data}
-                    tagEidt={tagEidt}
-                    tagCreate={tagCreate}
+                    sortTotal={pagination.total}
                 />
             </div>
         )
     }
 }
 
-// const getData = state =>{
-//     return {data : state.regicodeMgmt.data}
-// }
-
-// module.exports = connect(getData,{getRegionData})(RegicodeMgmt)
-module.exports = RegicodeMgmt
+module.exports = LoanType
