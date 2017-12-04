@@ -32,7 +32,7 @@ const CollectionCreateForm = Form.create()(
                     )}
                 </FormItem>
                 <FormItem label="说明" {...formItemLayout}>
-                    {getFieldDecorator('confirmRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
+                    {getFieldDecorator('assessRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
                         <Input type='textarea'/>
                     )}
                 </FormItem>
@@ -207,19 +207,19 @@ class LoanAssess extends Component {
                 return value == 1 ? '是' : value == 0 ? '否' : ''
             },
             width: 100
+        },{
+            title: '股金证',
+            dataIndex: 'certificatePic1',
+            width: 150,
+            render: (value, row) => {
+                // fileNo: '',
+                //     fileType: '',
+                //     fileName: '',
+                //     fileRealName: './test.jpg'
+                return this.picRender(row)
+            }
         }]
-    }, {
-        title: '股金证',
-        dataIndex: 'certificatePic1',
-        width: 150,
-        render: (value, row) => {
-            // fileNo: '',
-            //     fileType: '',
-            //     fileName: '',
-            //     fileRealName: './test.jpg'
-            return this.picRender(row)
-        }
-    }]
+    }, ]
 
     picRender = (row) => {
         return (<div>
@@ -358,7 +358,7 @@ class LoanAssess extends Component {
                     className='masterTable'
                     rowKey="guid"
                     bordered={true}
-                    scroll={{x: 1200, y: 320}}
+                    scroll={{x: 1300, y: 320}}
                     columns={this.columns}
                     rowSelection={rowSelection}
                     pagination={pagination}

@@ -110,7 +110,8 @@ const toThousands =(money)=> {
     return result;
 }
 
-const remoteHost = 'http://172.16.12.133:1111'
+// const remoteHost = 'http://172.16.12.133:1111'
+const remoteHost = 'http://172.16.12.213:1111'
 // const remoteHost = 'http://localhost:9876'
 module.exports ={fetch, transfer2tree,remoteHost,treeLooper,toThousands}
 

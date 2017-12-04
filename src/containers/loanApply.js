@@ -25,8 +25,8 @@ const CollectionCreateForm = Form.create()(
                 {getFieldDecorator('guid')(
                     <Input type="hidden"/>
                 )}
-                <FormItem label="备注" {...formItemLayout}>
-                    {getFieldDecorator('confirmRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
+                <FormItem label="说明" {...formItemLayout}>
+                    {getFieldDecorator('auditingRemark',{ rules: [{ required: true, message: '请输入说明信息'}]})(
                         <Input type='textarea'/>
                     )}
                 </FormItem>
@@ -71,7 +71,7 @@ class LoanApply extends Component {
         title: '编号',
         key: 'applyNo',
         dataIndex: 'applyNo',
-        width: 120,
+        width: 150,
     }, /*{
         title: '',
         key: 'guid',
@@ -87,7 +87,7 @@ class LoanApply extends Component {
         children: [{
             title: '贷款人',
             dataIndex: 'applyName',
-            width: 100,
+            width: 150,
         }, {
             title: '联系电话',
             dataIndex: 'applyTel',
@@ -355,7 +355,7 @@ class LoanApply extends Component {
                     className='masterTable'
                     rowKey="guid"
                     bordered={true}
-                    scroll={{x: 1200, y: 320}}
+                    scroll={{x: 1300, y: 320}}
                     columns={this.columns}
                     rowSelection={rowSelection}
                     pagination={pagination}
