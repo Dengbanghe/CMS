@@ -1,9 +1,11 @@
 import React,{ Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,Radio ,TreeSelect} from 'antd'
+import { Table ,Button, Modal, Form, Input,Radio ,Select,TreeSelect,DatePicker} from 'antd'
 import { fetch ,remoteHost} from '../util/common'
 import moment from 'moment'
+
 const FormItem = Form.Item;
+const Option = Select.Option
 
 const columns = [{
     title: '帐号',
@@ -12,10 +14,46 @@ const columns = [{
     fixed: 'left',
     sorter: true,
 }, {
-    title: '用户名',
+    title: '姓名',
     dataIndex: 'nickname',
-    width: 150,
+    width: 130,
     sorter: true
+}, {
+    title: '性别',
+    dataIndex: 'sex',
+    width: 50,
+    render:(text,record,index)=>{
+        switch (text){
+            case '0' :
+                return '男'
+                break
+            case '1':
+                return '女'
+                break
+            default:
+                return '未知'
+        }
+    }
+}, {
+    title: '出生年月',
+    dataIndex: 'birthday',
+    width: 100,
+}, {
+    title: '身份证号',
+    dataIndex: 'idcard',
+    width: 140,
+}, {
+    title: '固定电话',
+    dataIndex: 'phoneno',
+    width: 130,
+}, {
+    title: '传真',
+    dataIndex: 'faxno',
+    width: 130,
+}, {
+    title: '电子邮件',
+    dataIndex: 'email',
+    width: 130,
 }, {
     title: '状态',
     dataIndex: 'status',
@@ -41,6 +79,10 @@ const columns = [{
     dataIndex: 'postName',
     width: 150
 }, {
+    title: '办公地址',
+    dataIndex: 'address',
+    width: 130,
+}, {
     title: '创建时间',
     dataIndex: 'addtime',
     width: 150
@@ -55,6 +97,17 @@ const CollectionCreateForm = Form.create()(
     (props) => {
         const { visible, onCancel, onCreate, form ,title,confirmLoading,postTree,changePostValue,postValue} = props;
         const { getFieldDecorator } = form;
+        // const formItemLayout = {
+        //     labelCol: {
+        //         xs: { span: 24 },
+        //         sm: { span: 8},
+        //     },
+        //     wrapperCol: {
+        //         xs: { span: 24 },
+        //         sm: { span: 16 },
+        //     },
+        // }
+
         return (
             <Modal
                 visible={visible}
@@ -66,26 +119,75 @@ const CollectionCreateForm = Form.create()(
                 width={600}
             >
                 <div >
-                    <Form layout="inline" hideRequiredMark={true}>
+                    <Form layout='inline' hideRequiredMark={true}>
                         {getFieldDecorator('guid', )(
                             <Input type="hidden" />
                         )}
                         {getFieldDecorator('fDeptid', )(
                             <Input type="hidden" />
                         )}
-                        <FormItem label="帐号" >
+                        {getFieldDecorator('addtime', )(
+                            <Input type="hidden" />
+                        )}
+                        <FormItem label="帐号" style={{marginLeft:30}}>
                             {getFieldDecorator('account', {
-                                rules: [{ required: true, message: '请输入用户名' }],
+                                rules: [{ required: true, message: '请输入帐号' }]
                             })(
-                                <Input style={{width:200,marginTop:10}}/>
+                                <Input placeholder='输入帐号' style={{width:200,marginTop:10}}/>
                             )}
                         </FormItem>
-                        <FormItem label="用户名">
+                        <FormItem label="用户名" style={{marginLeft:10}}>
                             {getFieldDecorator('nickname', {})(
-                                <Input style={{width:200,marginTop:10}}/>
+                                <Input placeholder='输入用户名'  style={{width:200,marginTop:10}}/>
                             )}
                         </FormItem>
-                        <FormItem label="岗位">
+                        <FormItem label="性别" style={{marginLeft:30,marginTop:10}} >
+                            {getFieldDecorator('sex', {initialValue:'0'})(
+                                <Select style={{width:100}}>
+                                    <Option value="0">男</Option>
+                                    <Option value="1">女</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem label="出生年月" style={{marginLeft:100,marginTop:10}} >
+                            {getFieldDecorator('birthday', {})(
+                                <DatePicker
+                                    showToday={false}
+                                    style={{width:200}}
+                                />
+                            )}
+                        </FormItem>
+                        <FormItem label="身份证号" style={{marginLeft:5,marginTop:10}}>
+                            {getFieldDecorator('idcard', {
+                                    validateTrigger:'onBlur',rules: [{
+                                    pattern:/^[1-9](\d{16}|\d{13})[0-9xX]$/,
+                                    message:'身份证格式错误！'
+                                }
+                                ]})(
+                                <Input placeholder='输入身份证号' style={{width:200}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="电话" style={{marginTop:10,marginLeft:25}}>
+                            {getFieldDecorator('phoneno', {})(
+                                <Input placeholder='输入电话号码' style={{width:200}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="电子邮件" style={{marginLeft:5,marginTop:10}} >
+                            {getFieldDecorator('email', {})(
+                                <Input type='email' placeholder='输入电子邮件' style={{width:200}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="传真" style={{marginLeft:25,marginTop:10}}>
+                            {getFieldDecorator('faxno', {})(
+                                <Input placeholder='输入传真' style={{width:200}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="办公地址" style={{marginLeft:5,marginTop:10}} >
+                            {getFieldDecorator('address', {})(
+                                <Input placeholder='输入办公地址' style={{width:200}}/>
+                            )}
+                        </FormItem>
+                        <FormItem label="岗位" style={{marginLeft:25,marginTop:10}} >
                             {getFieldDecorator('fPostid', {})(
                                 <TreeSelect
                                     // multiple={true}
@@ -94,13 +196,14 @@ const CollectionCreateForm = Form.create()(
                                     treeDefaultExpandAll
                                     treeDataSimpleMode={{id:'_id',pId:'_pid',rootPId:'dept_0'}}
                                     onChange={changePostValue}
-                                    style={{width:200,marginTop:10}}
+                                    placeholder='请选择'
+                                    style={{width:200}}
                                 />
                             )}
                         </FormItem>
-                        <FormItem label="状态">
+                        <FormItem label="状态" style={{marginTop:10,marginLeft:30}} >
                             {getFieldDecorator('status')(
-                                <Radio.Group style={{width:250,marginTop:10}}>
+                                <Radio.Group>
                                     <Radio.Button value="0">停用</Radio.Button>
                                     <Radio.Button value="1">锁定</Radio.Button>
                                     <Radio.Button value="2">正常</Radio.Button>
@@ -108,8 +211,9 @@ const CollectionCreateForm = Form.create()(
                             )
                         }
                         </FormItem>
-                        <FormItem label="备注" >
-                            {getFieldDecorator('remark')(<Input type="textarea" style={{width:500,marginTop:10}}/>)}
+
+                        <FormItem label="备注" style={{marginTop:10,marginLeft:30}} >
+                            {getFieldDecorator('remark')(<Input placeholder='输入用户备注' type="textarea" style={{width:475}}/>)}
                         </FormItem>
                     </Form>
                 </div>
@@ -162,6 +266,7 @@ class User extends Component{
         this.setState({modalVisible: true ,modalTitle:'修改'})
         let data = {...this.state.selectedRows[0]}
         data.date = moment(data.date,'YYYY-MM-DD')
+        data.birthday = moment(data.birthday,'YYYY-MM-DD')
         this.form.setFieldsValue({...data,fPostid:`post_${data.fPostid}`})
     }
 
@@ -187,7 +292,9 @@ class User extends Component{
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_','')})
+            let date = new Date(values.birthday)
+            let formatDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+            fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_',''),birthday:formatDate})
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });
