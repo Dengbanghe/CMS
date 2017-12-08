@@ -58,11 +58,25 @@ res:{
         current:1,
         total:200
     },
-    data:[
-        {guid:1,nickname:'测试用户01',account:'测试帐号01',deptid:1,deptname:'部门01',postid:2,postname:'测试岗位',addtime:'2017-10-10 21:00:01',status:'0',remark:'备注'},
-        {guid:2,nickname:'测试用户02',account:'测试帐号02',deptid:1,deptname:'部门01',postid:2,postname:'测试岗位',addtime:'2017-10-10 21:00:01',status:'1',remark:'备注备注'},
-        {guid:3,nickname:'测试用户03',account:'测试帐号03',deptid:1,deptname:'部门01',postid:2,postname:'测试岗位',addtime:'2017-10-10 21:00:01',status:'2',remark:'备注备注备注'}
-    ]}
+    data:[ {
+             "guid" : 6,
+             "nickname" : "系统管理员",
+             "account" : "admin",
+             "fDeptid" : 98,
+             "fPostid" : 13,
+             "addtime" : "2017-11-30 18:53:21",
+             "status" : "2",
+             "remark" : null,
+             "deptName" : "技术部",
+             "postName" : "系统管理员",
+             sex:'0',
+             birthday: '2017-10-01',
+             idcard: '36012219980706763x',
+             phoneno: '110',
+             faxno:'0-88',
+             email: '09480@qq.com',
+             address:'杭州西湖区'
+         } ]
 ```
 保存/修改 **/user/saveUpdate**
 
@@ -72,7 +86,17 @@ req:{
     guid:1,
     nickname:'测试用户01',
     account:'测试帐号01',
-    ……
+    sex:'0',
+    birthday:'2008-12-4',
+    idcard:'360122199807086583',
+    phoneno:'13687629808',
+    email:'980987645@qq.com',
+    faxno:'978798478',
+    address:'杭州',
+    fDeptid:93,
+    fPostid:6,
+    status:0,
+    remark:''
 }
 
 res:{
@@ -594,7 +618,7 @@ res:{
  行政区划查询 **/region/list**
  ```
  res:{
-    data:[{
+    [{
             reginame: '河北省',
             regicode: 130000,
             sort:1,
@@ -690,7 +714,7 @@ res:{
 
  ```
  res:{
-    data:[{
+    [{
              guid:1,
              loanTypeName: '非上市银行股权质押贷款',
              remark: '非上市银行股权质押贷款',
@@ -826,7 +850,7 @@ res:{
  还款方式请求 **/repaymethod/list**
  ```
  res:{
-    data:[{
+    [{
              methodCode:1,
              methodName: '先息后本',
              remark: '先息后本',
@@ -867,7 +891,7 @@ res:{
   贷款期限请求  **/loanterm/list**
   ```
   res:{
-    data:[{
+    [{
             guid:1,
             loanTermName:'12期',
             stauts:0
@@ -883,5 +907,87 @@ res:{
   }
 
   ```
+  非上市银行分页请求 **/bankinfo/page**
+
+  ```
+  req:{
+     pageSize:20,
+     current：1
+  }
+  res:{
+        page:{
+            pageSize:2,
+            current:2,
+            total :100
+         },
+          data:[{
+              guid:1,
+              bankName:'北京中关村银行',
+              remark:'北京中关村银行',
+              bankImg:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABRQAUUUUwCiiikAnajvRRTGLRRRSEJRRRQB//Z',
+              status:0,
+              fRegicode:130002,
+              reginame:'长安区',
+              address:'杭州',
+              corporation:'小二',
+              registeredcapital:9000000,
+              founddate:'2017-1-10',
+              businessterm:'八年',
+              business:'经营范围',
+              regauthority:'杭州工商局'
+          },{
+              guid:2,
+              bankName:'北京农村商业银行',
+              remark:'北京农村商业银行',
+              bankImg:'data:image/jpeg;base64,/9j/4AAQSkZJRgAACiiigAooooAKKKKACiiigAooooAKKKKAP/Z',
+              status:1,
+              fRegicode:130004,
+              reginame:'桥西区',
+              address:'杭州',
+              corporation:'小二',
+              registeredcapital:9000000,
+              founddate:'2017-1-10',
+              businessterm:'八年',
+              business:'经营范围',
+              regauthority:'杭州工商局'
+          }]
+      }
+
+  ```
+  非上市银行删除请求  **/bankinfo/remove**
+  ```
+  req:{
+    guid:1
+  }
+ res:{
+     success:true,
+     message:''
+  }
+
+  ```
+  非上市银行新增和修改 **/bankinfo/saveUpdate**
+   有主键修改   没主键新增
+  ```
+  req:{
+    guid:1,
+    bankName:'杭州银行',
+    fRegicode:130002,
+    status:0,
+    bankImg:'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAADoooAKKKKACiiigAooooAKKKKAP/Z',
+    remark:'备注',
+    address:'杭州',
+    corporation:'小二',
+    registeredcapital:9000000,
+    founddate:'2017-1-10',
+    businessterm:'八年',
+    business:'经营范围',
+    regauthority:'杭州工商局'
+  }
+ res:{
+    success:true,
+    message:''
+ }
+
+ ```
 
 
