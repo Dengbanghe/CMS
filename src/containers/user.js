@@ -202,7 +202,7 @@ const CollectionCreateForm = Form.create()(
                             )}
                         </FormItem>
                         <FormItem label="状态" style={{marginTop:10,marginLeft:30}} >
-                            {getFieldDecorator('status')(
+                            {getFieldDecorator('status',{initialValue:'2'})(
                                 <Radio.Group>
                                     <Radio.Button value="0">停用</Radio.Button>
                                     <Radio.Button value="1">锁定</Radio.Button>
@@ -266,7 +266,9 @@ class User extends Component{
         this.setState({modalVisible: true ,modalTitle:'修改'})
         let data = {...this.state.selectedRows[0]}
         data.date = moment(data.date,'YYYY-MM-DD')
-        data.birthday = moment(data.birthday,'YYYY-MM-DD')
+        if(data.birthday){
+            data.birthday = moment(data.birthday,'YYYY-MM-DD')
+        }
         this.form.setFieldsValue({...data,fPostid:`post_${data.fPostid}`})
     }
 
@@ -292,9 +294,14 @@ class User extends Component{
                 return;
             }
             this.setState({ confirmLoading:true});
-            let date = new Date(values.birthday)
-            let formatDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
-            fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_',''),birthday:formatDate})
+            if(values.birthday){
+                let date = new Date(values.birthday)
+                let formatDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()
+                fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_',''),birthday:formatDate})
+            }else {
+                fetch(`${remoteHost}/user/saveUpdate`,{...values,fPostid:values.fPostid.replace('post_','')})
+            }
+
             form.resetFields();
             this.setState({ modalVisible: false ,confirmLoading:false});
         });
