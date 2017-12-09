@@ -585,33 +585,22 @@ res:{
         total :100
      },
      data:[{
-            reginame: '河北省',
-            regicode: 130000,
-            sort:1,
-            p_Regicode:0,
-            children: [{
-                        reginame: '长安区',
-                        regicode: 130002,
-                        p_Regicode: 130000,
-                        sort:2
-                    }, {
-                        reginame: '桥西区',
-                        regicode: 130004,
-                        p_Regicode: 130000,
-                        sort:0
-                    }]
-        }, {
-            reginame: '天津市',
-            regicode: 120000,
-            sort:0,
-            p_Regicode:0,
-            children:[{
-                reginame: '和平区',
-                regicode: 120001,
-                p_Regicode: 120000,
-                sort:1
-            }]
-        }]
+             "regicode" : "110000",
+             "reginame" : "北京市",
+             "pRegicode" : null,
+             "sort" : 0,
+             "_title" : "北京市",
+             "_id" : "regi_110000",
+             "_pid" : "regi_0"
+           }, {
+             "regicode" : "110001",
+             "reginame" : "东城区",
+             "pRegicode" : "110000",
+             "sort" : 1,
+             "_title" : "东城区",
+             "_id" : "regi_110001",
+             "_pid" : "regi_110000"
+           }]
     }
 
  ```
@@ -619,33 +608,22 @@ res:{
  ```
  res:{
     [{
-            reginame: '河北省',
-            regicode: 130000,
-            sort:1,
-            p_Regicode:0,
-            children: [{
-                        reginame: '长安区',
-                        regicode: 130002,
-                        p_Regicode: 130000,
-                        sort:2
-                    }, {
-                        reginame: '桥西区',
-                        regicode: 130004,
-                        p_Regicode: 130000,
-                        sort:0
-                    }]
-            }, {
-                reginame: '天津市',
-                regicode: 120000,
-                sort:0,
-                p_Regicode:0,
-                children:[{
-                    reginame: '和平区',
-                    regicode: 120001,
-                    p_Regicode: 120000,
-                    sort:1
-                }]
-          }]
+       "regicode" : "110000",
+       "reginame" : "北京市",
+       "pRegicode" : null,
+       "sort" : 0,
+       "_title" : "北京市",
+       "_id" : "regi_110000",
+       "_pid" : "regi_0"
+     }, {
+       "regicode" : "110001",
+       "reginame" : "东城区",
+       "pRegicode" : "110000",
+       "sort" : 1,
+       "_title" : "东城区",
+       "_id" : "regi_110001",
+       "_pid" : "regi_110000"
+     }]
  }
 
  ```
@@ -966,7 +944,8 @@ res:{
 
   ```
   非上市银行新增和修改 **/bankinfo/saveUpdate**
-   有主键修改   没主键新增
+  有主键修改   没主键新增
+
   ```
   req:{
     guid:1,
