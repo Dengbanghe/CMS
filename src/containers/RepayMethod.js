@@ -1,4 +1,5 @@
 import React, { Component } from 'react' // 引入React
+import bigdecimal from 'js-big-decimal'
 import { connect } from 'react-redux'
 import { Table ,Button, Modal, Form, Input,Icon  } from 'antd';
 import { fetch ,remoteHost,transfer2tree} from '../util/common'
@@ -80,20 +81,24 @@ class RepayMethod extends Component{
     state = {
         data:[],
         pagination: {pageSize:10,current:1},
-        loading:false,
         modalAddTitle: '',
         modalAddVisible: false,
         confirmLoading: false,
         selectedRows:[],
+        create:'',
+        delete:''  //记录删除操作
     }
 
     componentDidMount(){
         this.getData({...this.state.pagination})
     }
     getData = async(param) =>{
-        this.setState({loading:true})
+        if(this.state.delete === 'delete'){  //删除某条记录后禁用除了新增外的按钮
+            this.setState({selectedRows:[]})
+        }
+        this.setState({confirmLoading:true})
         let data = await fetch(`${remoteHost}/repaymethod/page`,param)
-        this.setState({data:data.data,pagination:data.page ,loading:false})
+        this.setState({data:data.data,pagination:data.page ,confirmLoading:false,delete:''})
     }
     pageChange = (pagination) => {
         // let sort = sorter.field===undefined?{}:{order:sorter.field,orderby:sorter.order==='ascend' ? 'asc' :sorter.order ==='descend'? 'desc':''}
@@ -104,13 +109,14 @@ class RepayMethod extends Component{
     }
     addRegin = () => {
         this.setState({
+            create:'create',
             modalAddVisible: true,
             modalAddTitle: '新增还款方式'
         });
         this.form.resetFields()
     }
     editRegin = () =>{
-        this.setState({modalAddVisible: true, modalAddTitle:'修改还款方式'});
+        this.setState({create:'',modalAddVisible: true, modalAddTitle:'修改还款方式'});
         let data = {...this.state.selectedRows[0]}
         this.form.resetFields()
         this.form.setFieldsValue({...data})
@@ -119,8 +125,9 @@ class RepayMethod extends Component{
         Modal.confirm({
             title: '警告',
             content: '请确认是否需要删除该还款方式?',
-            onOk:  () => {
-                fetch(`${remoteHost}/repaymethod/remove`,{regicode:this.state.selectedRows[0].methodCode})
+            onOk:  async() => {
+                this.setState({delete:'delete'})
+                await fetch(`${remoteHost}/repaymethod/remove`,{methodCode:this.state.selectedRows[0].methodCode})
                 this.getData({...this.state.pagination})
             }
         })
@@ -128,14 +135,21 @@ class RepayMethod extends Component{
     handleCreate = () => {
         const form = this.form;
         form.validateFields(async(err, values) => {
-            // console.log("values===="+values.reginame+values.regicode+values.p_regicode)
             if (err) {
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/repaymethod/saveUpdate`,{...values});
+            //创建时设置主键
+            if(this.state.create === 'create'){
+                if(this.state.data.length>0){
+                    values.methodCode = bigdecimal.add(this.state.data[this.state.data.length-1].methodCode,1)
+                }else {
+                    values.methodCode = 0
+                }
+            }
+            await fetch(`${remoteHost}/repaymethod/saveUpdate`,{...values});
             form.resetFields();
-            this.setState({ modalAddVisible: false ,confirmLoading:false})
+            this.setState({ create:'',modalAddVisible: false,confirmLoading:false})
 
             this.getData({...this.state.pagination})
         });
@@ -148,7 +162,7 @@ class RepayMethod extends Component{
     }
 
     onRowClick = (record,index) =>{
-        this.setState({selectedRowKeys:record.methodCode.toString()})
+        this.setState({selectedRowKeys:[record.methodCode.toString()]})
         this.selectRow([record])
     }
 
@@ -180,6 +194,7 @@ class RepayMethod extends Component{
                     pagination={pagination}
                     onChange={this.pageChange}
                     onRowClick={this.onRowClick}
+                    loading={confirmLoading}
                     bordered
                 />:<div><Icon type="frown-o" />暂无数据</div>}
                 <ReginAddForm

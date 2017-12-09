@@ -53,11 +53,13 @@ const ReginAddForm = Form.create()(
         // 根据选择（省，市级别）不同以及操作不同，提供的选择排序总数不同
         const sortSelectOption = []
         if(tagEidt === 'edit'){
-            if(selectedRowData[0].pRegicode!=0){
+            if(selectedRowData[0].pRegicode != null){
                 data.forEach((e)=>{
                     if(e.regicode == selectedRowData[0].pRegicode){
-                        for(let i=0;i<e.children.length;i++){
-                            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                        if(e.children){
+                            for(let i=0;i<e.children.length;i++){
+                                sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                            }
                         }
                     }
                 })
@@ -67,23 +69,24 @@ const ReginAddForm = Form.create()(
                 }
             }
         }else if(tagCreate === 'create'){
-            if(selectedRowData[0].pRegicode!=0){
+            if(selectedRowData[0].pRegicode != null){
                 data.forEach((e)=>{
                     if(e.regicode == selectedRowData[0].pRegicode){
-                        for(let i=0;i<=e.children.length;i++){
-                            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                        if(e.children){
+                            for(let i=0;i<=e.children.length;i++){
+                                sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                            }
                         }
                     }
                 })
             }else{
                 data.forEach((e)=>{
-                    for(let i=0;i<=e.children.length;i++){
-                        sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                    if(e.children){
+                        for(let i=0;i<=e.children.length;i++){
+                            sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
+                        }
                     }
                 })
-                // for(let i=0;i<=data.length;i++){
-                //     sortSelectOption.push(<Option key={i.toString()}>{i}</Option>)
-                // }
             }
         }
 
@@ -146,48 +149,54 @@ const ReginAddForm = Form.create()(
 class RegicodeMgmt extends Component{
     state = {
         data:[],
-        pagination: {pageSize:2,current:1},
-        loading:false,
+        pagination: {pageSize:10,current:1},
         modalAddTitle: '',
         modalAddVisible: false,
         confirmLoading: false,
         selectedRows:[],
         selectedRowData:[{}],
         tagEidt:'',  //标记修改操作
-        tagCreate:''　//标记新增操作
+        tagCreate:'',　//标记新增操作
+        delete:'',  //记录删除操作
+        defaultExpandedRowKeys:[] //默认展开的行
     }
 
     componentDidMount(){
         this.getData({...this.state.pagination})
     }
     getData = async(param) =>{
-        this.setState({loading:true})
-        let data = await fetch(`${remoteHost}/region/page`,param)
-        data.data.sort(this.compareUp(data.data,'sort'))
-        data.data.forEach((e)=>{
-            if(e.children.length>0){
+        if(this.state.delete === 'delete'){  //删除某条记录后禁用除了新增外的按钮
+            this.setState({selectedRows:[]})
+        }
+        this.setState({confirmLoading:true})
+        let result = await fetch(`${remoteHost}/region/list`,param)
+        let data = transfer2tree(result,{rootId:'regi_0'})
+        console.log("================")
+        console.log(data)
+        data.sort(this.compareUp(data,'sort'))
+        data.forEach((e)=>{
+            if(e.children && e.children.length>0){
                 e.children.sort(this.compareUp(e.children,'sort'))
             }
         })
-        // let dat = transfer2tree(data.data)
-        // console.log(dat)
-        // console.log("data-------"+data.data[0].children[0].reginame+data.page)
-        this.setState({data:data.data,pagination:data.page ,loading:false})
+        this.setState({data:data,confirmLoading:false,defaultExpandedRowKeys:[data[0].regicode.toString()]})
     }
     // 升序排序
     compareUp = (arr,propertyName) => {
-        if ((typeof arr[0][propertyName]) != "number") { // 属性值为非数字
-            return function(object1, object2) {
-                var value1 = object1[propertyName];
-                var value2 = object2[propertyName];
-                return value1.localeCompare(value2);
+        if(arr[0][propertyName] != null){
+            if ((typeof arr[0][propertyName]) != "number") { // 属性值为非数字
+                return function(object1, object2) {
+                    var value1 = object1[propertyName];
+                    var value2 = object2[propertyName];
+                    return value1.localeCompare(value2);
+                }
             }
-        }
-        else {
-            return function(object1, object2) { // 属性值为数字
-                var value1 = object1[propertyName];
-                var value2 = object2[propertyName];
-                return value1 - value2;
+            else {
+                return function(object1, object2) { // 属性值为数字
+                    var value1 = object1[propertyName];
+                    var value2 = object2[propertyName];
+                    return value1 - value2;
+                }
             }
         }
     }
@@ -195,7 +204,6 @@ class RegicodeMgmt extends Component{
 
 
     pageChange = (pagination) => {
-        // let sort = sorter.field===undefined?{}:{order:sorter.field,orderby:sorter.order==='ascend' ? 'asc' :sorter.order ==='descend'? 'desc':''}
         this.getData({...pagination})
     }
     saveFormRef = (form) =>{
@@ -214,6 +222,12 @@ class RegicodeMgmt extends Component{
         this.setState({tagCreate:'',tagEidt:'edit'})
         this.setState({modalAddVisible: true, modalAddTitle:'修改行政区划'});
         let data = {...this.state.selectedRows[0]}
+        if(!data.sort){
+            data.sort = '0'
+        }
+        console.log("==============")
+        console.log(data.sort)
+
         this.form.resetFields()
         this.form.setFieldsValue({...data})
     }
@@ -222,6 +236,7 @@ class RegicodeMgmt extends Component{
             title: '警告',
             content: '请确认是否需要删除该行政区划?',
             onOk:  () => {
+                this.setState({delete:'delete'})
                 fetch(`${remoteHost}/region/remove`,{regicode:this.state.selectedRows[0].regicode})
                 this.getData({...this.state.pagination})
             }
@@ -250,7 +265,7 @@ class RegicodeMgmt extends Component{
     }
 
     onRowClick = (record,index) =>{
-        this.setState({selectedRowKeys:record.regicode.toString()})
+        this.setState({selectedRowKeys:[record.regicode.toString()]})
         this.selectRow([record])
     }
 
@@ -260,7 +275,8 @@ class RegicodeMgmt extends Component{
     }
 
     render(){
-        const {data, modalAddTitle, modalAddVisible, confirmLoading, selectedRowKeys, pagination,selectedRowData,tagEidt,tagCreate} = this.state;
+        const {data, modalAddTitle, modalAddVisible, confirmLoading, selectedRowKeys, pagination,
+            selectedRowData,tagEidt,tagCreate,defaultExpandedRowKeys} = this.state;
         const rowSelection = {
             selectedRowKeys,
             type : 'radio',
@@ -280,10 +296,13 @@ class RegicodeMgmt extends Component{
                     rowSelection={rowSelection}
                     dataSource={data}
                     rowKey ='regicode'
-                    pagination={pagination}
+                    // pagination={pagination}
                     onChange={this.pageChange}
                     onRowClick={this.onRowClick}
-                    defaultExpandAllRows={true}
+                    // defaultExpandAllRows={true}
+                    defaultExpandedRowKeys={defaultExpandedRowKeys}
+                    scroll={{ x: true, y: 300 }}
+                    loading={confirmLoading}
                     bordered
                 />:<div><Icon type="frown-o" />暂无数据</div>}
                 <ReginAddForm

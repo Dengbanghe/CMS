@@ -1,6 +1,6 @@
 import React, { Component } from 'react' // 引入React
 import { connect } from 'react-redux'
-import { Table ,Button, Modal, Form, Input,Icon, Select,Radio } from 'antd';
+import { Table ,Button, Modal, Form, Input,Icon, Select,Radio,message } from 'antd';
 import { fetch ,remoteHost,transfer2tree} from '../util/common'
 // import { getRegionData } from '../actions/regicodeMgmt';
 
@@ -95,7 +95,7 @@ const LoanTypeForm = Form.create()(
                         </FormItem>
                         <FormItem label="状态" style={{ marginTop:10}} {...formItemLayout}>
                             {getFieldDecorator('status', {
-                                rules: [{ required: true, message: '请选择贷款类型状态' }],
+                                rules: [{ required: false, message: '请选择贷款类型状态' }],
                             })(
                                 <Select placeholder=" ---请选择---" >
                                     <Option value="0">正常</Option>
@@ -125,22 +125,27 @@ class LoanType extends Component{
     state = {
         data:[],
         pagination: {pageSize:10,current:1},
-        loading:false,
         modalAddTitle: '',
         modalAddVisible: false,
         confirmLoading: false,
         selectedRows:[],
+        delete:''
     }
 
     componentDidMount(){
         this.getData({...this.state.pagination})
     }
     getData = async(param) =>{
-        this.setState({loading:true})
-        let data = await fetch(`${remoteHost}/loantype/page`,param)
+        if(this.state.delete === 'delete'){  //删除某条记录后禁用除了新增外的按钮
+            this.setState({selectedRows:[]})
+        }
+        this.setState({confirmLoading:true})
+        let result = await fetch(`${remoteHost}/loantype/page`,param)
+        let data = result.data
+        data = data.map(item=>({...item,'guid':item.guid.toString()}))
         // let dat = transfer2tree(data.data)
-        data.data.sort(this.compareUp(data.data,"sort"))
-        this.setState({data:data.data,pagination:data.page ,loading:false})
+        data.sort(this.compareUp(data,"sort"))
+        this.setState({data:data,pagination:result.page ,confirmLoading:false,delete:''})
     }
     // 升序排序
     compareUp = (arr,propertyName) => {
@@ -161,7 +166,6 @@ class LoanType extends Component{
     }
 
     pageChange = (pagination) => {
-        // let sort = sorter.field===undefined?{}:{order:sorter.field,orderby:sorter.order==='ascend' ? 'asc' :sorter.order ==='descend'? 'desc':''}
         this.getData({...pagination})
     }
     saveFormRef = (form) =>{
@@ -177,22 +181,16 @@ class LoanType extends Component{
     editRegin = () =>{
         this.setState({modalAddVisible: true, modalAddTitle:'修改贷款类型'});
         let data = {...this.state.selectedRows[0]}
-        if(data.status == 0){
-            data.status = '正常'
-        }else if(data.status == 1){
-            data.status = '停用'
-        }else {
-            data.status = '删除'
-        }
         this.form.resetFields()
-        this.form.setFieldsValue({...data})
+        this.form.setFieldsValue({...data,status:data.status.toString()})
     }
     deleteRegin = () =>{
         Modal.confirm({
             title: '警告',
             content: '请确认是否需要删除该贷款类型?',
-            onOk:  () => {
-                fetch(`${remoteHost}/loantype/remove`,{guid:this.state.selectedRows[0].guid})
+            onOk:  async() => {
+                this.setState({delete:'delete'})
+                await fetch(`${remoteHost}/loantype/remove`,{guid:this.state.selectedRows[0].guid})
                 this.getData({...this.state.pagination})
             }
         })
@@ -200,12 +198,11 @@ class LoanType extends Component{
     handleCreate = () => {
         const form = this.form;
         form.validateFields(async(err, values) => {
-            // console.log("values===="+values.reginame+values.regicode+values.p_regicode)
             if (err) {
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/loantype/saveUpdate`,{...values});
+            await fetch(`${remoteHost}/loantype/saveUpdate`,{...values});
             form.resetFields();
             this.setState({ modalAddVisible: false ,confirmLoading:false})
 
@@ -220,7 +217,7 @@ class LoanType extends Component{
     }
 
     onRowClick = (record,index) =>{
-        this.setState({selectedRowKeys:record.guid.toString()})
+        this.setState({selectedRowKeys:[record.guid.toString()]})
         this.selectRow([record])
     }
 
@@ -252,6 +249,7 @@ class LoanType extends Component{
                     pagination={pagination}
                     onChange={this.pageChange}
                     onRowClick={this.onRowClick}
+                    loading={confirmLoading}
                     bordered
                 />:<div><Icon type="frown-o" />暂无数据</div>}
                 <LoanTypeForm

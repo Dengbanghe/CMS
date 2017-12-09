@@ -137,7 +137,6 @@ class LoanTermAndRate extends Component{
     state = {
         data:[],
         pagination: {pageSize:10,current:1},
-        loading:false,
         modalAddTitle: '',
         modalAddVisible: false,
         confirmLoading: false,
@@ -149,7 +148,8 @@ class LoanTermAndRate extends Component{
         capital:0, //本金
         interest:0, //利息
         showTimeLine:[],
-        showDownUp:'up'
+        showDownUp:'up',
+        delete:''  //记录删除操作
     }
 
     async componentDidMount(){
@@ -159,10 +159,10 @@ class LoanTermAndRate extends Component{
         let loanTermData = await fetch(`${remoteHost}/loanterm/list`)
         // let termRateListData = await fetch(`${remoteHost}/loanTermRate/list`)
         const data ={
-            loanType:loanData.data,
-            repaymethod:repayData.data,
-            loanterm:loanTermData.data,
-            // termRateList:termRateListData.data
+            loanType:loanData,
+            repaymethod:repayData,
+            loanterm:loanTermData,
+            // termRateList:termRateListData
         }
 
         this.setState({options:data})
@@ -170,10 +170,15 @@ class LoanTermAndRate extends Component{
         this.getData({...this.state.pagination})
     }
     getData = async(param) =>{
-        this.setState({loading:true})
-        let data = await fetch(`${remoteHost}/loanrate/page`,param)
+        if(this.state.delete === 'delete'){  //删除某条记录后禁用除了新增外的按钮
+            this.setState({selectedRows:[]})
+        }
+        this.setState({confirmLoading:true})
+        let result = await fetch(`${remoteHost}/loanrate/page`,param)
+        let data = result.data
+        data = data.map(item=>({...item,'guid':item.guid.toString()}))
 
-        this.setState({data:data.data,pagination:data.page ,loading:false})
+        this.setState({data:data,pagination:result.page ,confirmLoading:false,delete:''})
     }
 
     pageChange = (pagination) => {
@@ -199,8 +204,9 @@ class LoanTermAndRate extends Component{
         Modal.confirm({
             title: '警告',
             content: '请确认是否需要删除该条记录?',
-            onOk:  () => {
-                fetch(`${remoteHost}/loanrate/remove`,{guid:this.state.selectedRows[0].guid})
+            onOk:  async() => {
+                this.setState({delete:'delete'})
+                await fetch(`${remoteHost}/loanrate/remove`,{guid:this.state.selectedRows[0].guid})
                 this.getData({...this.state.pagination})
             }
         })
@@ -212,7 +218,7 @@ class LoanTermAndRate extends Component{
                 return;
             }
             this.setState({ confirmLoading:true});
-            fetch(`${remoteHost}/loanrate/saveUpdate`,{...values});
+            await fetch(`${remoteHost}/loanrate/saveUpdate`,{...values});
             form.resetFields();
             this.setState({ modalAddVisible: false ,confirmLoading:false})
 
@@ -227,7 +233,7 @@ class LoanTermAndRate extends Component{
     }
 
     onRowClick = (record,index) =>{
-        this.setState({selectedRowKeys:record.guid.toString()})
+        this.setState({selectedRowKeys:[record.guid.toString()]})
         this.selectRow([record])
     }
 
@@ -362,6 +368,7 @@ class LoanTermAndRate extends Component{
                     pagination={pagination}
                     onChange={this.pageChange}
                     onRowClick={this.onRowClick}
+                    loading={confirmLoading}
                     bordered
                 />:<div><Icon type="frown-o" />暂无数据</div>}
                 <TermRateForm
