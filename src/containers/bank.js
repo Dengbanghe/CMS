@@ -16,18 +16,18 @@ const columns = [{
     title: '非上市银行名称',
     dataIndex: 'bankName',
     key: 'bankName',
-    width: '200',
+    width: 200,
     fixed: 'left'
 }, {
     title: '所属行政区划',
     dataIndex: 'regiName',
     key: 'regiName',
-    width:'150'
+    width:150
 }, {
     title: '状态',
     dataIndex: 'status',
     key: 'status',
-    width:'50',
+    width:50,
     render: function (text,record,index) {
         if(text == 0){
             return '正常'
@@ -39,12 +39,14 @@ const columns = [{
     title: '图标',
     dataIndex: 'bankImg',
     key: 'bankImg',
-    width:'50',
+    width:50,
     render:function (text,record) {
         let src = <img alt='Not Found' style={{width:140,height:140}} src={`${remoteHost}/download?fileNo=${text}`} />
-        return (<Popover content={src}>
-                     <a href='#'>logo</a>
-                </Popover >)
+        if(text){
+            return (<Popover content={src}>
+                <a href='#'>logo</a>
+            </Popover >)
+        }
     }
 },{
     title: '地址',
@@ -427,14 +429,22 @@ class Bank extends Component{
 
 
     editRegin = () =>{
-        this.setState({imageUrl:'',bankImg:'',create:'',edit:'edit',modalAddVisible: true, modalAddTitle:'修改非上市银行'});
+        this.setState({imageUrl:'',bankImg:'',create:'',showProv:undefined,
+            showCity:undefined,edit:'edit',modalAddVisible: true, modalAddTitle:'修改非上市银行'});
         let data = {...this.state.selectedRows[0]}
         if(data.founddate){
             data.founddate = moment(data.founddate,'YYYY-MM-DD')
         }
         this.form.resetFields()
-        this.form.setFieldsValue({...data,status:data.status.toString()})
-        this.setProvCityValue()
+        if(data.status){
+            this.form.setFieldsValue({...data,status:data.status.toString()})
+        }else {
+            this.form.setFieldsValue({...data,status:undefined})
+        }
+
+        if(data.regiName){
+            this.setProvCityValue()
+        }
         this.setState({backImg:this.state.selectedRows[0].bankImg})
     }
 
